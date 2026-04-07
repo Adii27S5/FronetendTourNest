@@ -5,7 +5,7 @@ import path from "path";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
-  base: "/FrontendHomestay/",   // 👈 ADD THIS LINE (VERY IMPORTANT)
+  base: "/",   // 👈 Fixed base path for root deployment
 
   server: {
     host: "0.0.0.0",
