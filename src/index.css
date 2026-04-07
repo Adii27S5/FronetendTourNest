@@ -1,0 +1,214 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Premium Indian Tricolor Design System - Saffron, White, Green */
+
+@layer base {
+  :root {
+    /* Base colors - premium ivory tones */
+    --background: 0 0% 100%;
+    --foreground: 220 25% 12%;
+
+    /* Pearl White for cards */
+    --card: 0 0% 100%;
+    --card-foreground: 220 25% 12%;
+
+    /* Popover system */
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 25% 12%;
+
+    /* Ashoka Blue - Primary for trust and authority */
+    --primary: 226 100% 25%;
+    /* #000080 Ashoka Blue approx */
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 226 100% 40%;
+
+    /* Saffron - Secondary for vibrancy */
+    --secondary: 32 100% 60%;
+    /* #FF9933 Saffron */
+    --secondary-foreground: 0 0% 100%;
+
+    /* Emerald Green - For nature and growth */
+    --nature: 125 90% 28%;
+    /* #128807 Green */
+    --nature-foreground: 0 0% 100%;
+
+    /* Muted tones - elegant grays */
+    --muted: 220 20% 96%;
+    --muted-foreground: 220 10% 45%;
+
+    /* Accent - Saffron Glow */
+    --accent: 32 100% 90%;
+    --accent-foreground: 32 100% 25%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 15% 90%;
+    --input: 220 15% 94%;
+    --ring: 226 100% 25%;
+
+    /* Premium Theme Tokens */
+    --saffron: 32 100% 60%;
+    --green: 125 90% 28%;
+    --pearl: 0 0% 100%;
+    --navy: 226 100% 25%;
+
+    --gold: 45 100% 50%;
+    /* Gradations for tricolor theme */
+    --gradient-tricolor: linear-gradient(135deg, hsl(32 100% 60%), hsl(0 0% 100%), hsl(125 90% 28%));
+    --gradient-premium: linear-gradient(135deg, hsl(226 100% 25%), hsl(226 80% 45%));
+    --gradient-saffron: linear-gradient(135deg, hsl(32 100% 60%), hsl(32 100% 75%));
+    --gradient-green: linear-gradient(135deg, hsl(125 90% 28%), hsl(125 70% 45%));
+
+    /* Advanced Shadows */
+    --shadow-soft: 0 4px 20px hsl(0 0% 0% / 0.05);
+    --shadow-premium: 0 20px 60px hsl(226 100% 20% / 0.1);
+    --shadow-saffron: 0 10px 30px hsl(32 100% 60% / 0.2);
+    --shadow-glow: 0 0 40px hsl(226 100% 25% / 0.25);
+
+    --radius: 1.5rem;
+  }
+
+  .dark {
+    /* Dark theme - Charcoal and Deep Navy */
+    --background: 226 50% 5%;
+    --foreground: 0 0% 98%;
+
+    --card: 226 40% 10%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 226 40% 10%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 32 100% 60%;
+    /* Saffron pop in dark */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 125 80% 35%;
+    /* Green accent */
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 226 30% 15%;
+    --muted-foreground: 226 10% 65%;
+
+    --accent: 226 100% 25%;
+    --accent-foreground: 0 0% 100%;
+
+    --border: 226 20% 20%;
+    --input: 226 20% 18%;
+    --ring: 32 100% 60%;
+
+    --shadow-soft: 0 4px 20px hsl(0 0% 0% / 0.5);
+    --shadow-premium: 0 20px 60px hsl(0 0% 0% / 0.7);
+    --shadow-glow: 0 0 40px hsl(32 100% 60% / 0.3);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+}
+
+/* Custom Utilities for Tricolor Theme */
+@layer utilities {
+  .btn-saffron {
+    @apply bg-gradient-to-r from-[hsl(var(--saffron))] to-[hsl(32, 100%, 70%)] text-white shadow-saffron hover:scale-105 transition-all;
+  }
+
+  .btn-green {
+    @apply bg-gradient-to-r from-[hsl(var(--green))] to-[hsl(125, 70%, 40%)] text-white shadow-soft hover:scale-105 transition-all;
+  }
+
+  .glass-pearl {
+    @apply bg-white/10 backdrop-blur-xl border border-white/20 shadow-premium;
+  }
+
+  .text-gradient-saffron {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-[hsl(var(--saffron))] to-[hsl(32, 100%, 75%)];
+  }
+
+  /* Custom Animations */
+  @keyframes scale-in {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  .animate-scale-in {
+    animation: scale-in 0.3s ease-out forwards;
+  }
+
+  @keyframes slide-up {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate-slide-up {
+    animation: slide-up 0.4s ease-out forwards;
+  }
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  .animate-fade-in {
+    animation: fade-in 0.5s ease-out forwards;
+  }
+
+  /* Premium Shadow Utilities */
+  .shadow-premium-light {
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.05);
+  }
+  .shadow-premium-dark {
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2), 0 8px 24px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Glassmorphism Effects */
+  .glassmorphism-light {
+    @apply bg-white/30 backdrop-blur-md border border-white/40;
+  }
+  .glassmorphism-dark {
+    @apply bg-black/20 backdrop-blur-lg border border-white/10;
+  }
+
+  /* Tricolor Branding Variables (already defined in :root, but adding a comment for context) */
+  /* --saffron, --green, --pearl, --navy are defined in :root for consistent use */
+
+  .bg-gradient-tricolor {
+    background: linear-gradient(135deg, hsl(var(--primary)/0.1) 0%, hsl(var(--secondary)/0.1) 50%, hsl(var(--nature)/0.1) 100%);
+  }
+
+  .shadow-premium {
+    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.05), 0 0 1px 0 rgba(0, 0, 0, 0.1);
+  }
+
+  .glassmorphism {
+    @apply bg-white/60 backdrop-blur-xl border border-white/20;
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+  }
+
+  .luxury-text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-br from-foreground via-foreground/90 to-primary/80;
+  }
+
+  /* Business Aesthetic Effects */
+  button, a {
+    @apply transition-all duration-300 active:scale-95;
+  }
+
+  .cursor-active {
+    @apply scale-90 opacity-60;
+  }
+}
