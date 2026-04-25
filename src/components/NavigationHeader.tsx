@@ -13,7 +13,8 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useNotifications } from "@/hooks/useNotifications";
 
 const NavigationHeader = () => {
     const { user, signOut } = useAuth();
@@ -56,7 +57,7 @@ const NavigationHeader = () => {
     const [notifications, setNotifications] = useState<any[]>([]);
     const [unreadCount, setUnreadCount] = useState(0);
 
-    const fetchNotifications = async () => {
+    const fetchNotifications = useCallback(async () => {
         if (!user?.email) return;
         try {
             const res = await fetch(`${API_BASE_URL}/api/notifications/user/${user.email}`);
@@ -68,15 +69,13 @@ const NavigationHeader = () => {
         } catch (err) {
             console.error("Failed to fetch notifications:", err);
         }
-    };
+    }, [user?.email]);
+
+    useNotifications((count) => setUnreadCount(count));
 
     useEffect(() => {
-        if (user) {
-            fetchNotifications();
-            const interval = setInterval(fetchNotifications, 60000); // Poll every 60s
-            return () => clearInterval(interval);
-        }
-    }, [user]);
+        if (user) fetchNotifications();
+    }, [user, fetchNotifications]);
 
     const markAsRead = async (id: number) => {
         try {
@@ -164,7 +163,9 @@ const NavigationHeader = () => {
                         <Button variant="ghost" size="icon" className="relative rounded-xl hover:bg-primary/5 group">
                             <Bell className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
                             {unreadCount > 0 && (
-                                <span className="absolute top-2 right-2 w-2 h-2 bg-secondary rounded-full animate-pulse" />
+                                <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-0.5 bg-secondary text-white text-[9px] font-black rounded-full flex items-center justify-center animate-bounce shadow-glow">
+                                    {unreadCount > 9 ? '9+' : unreadCount}
+                                </span>
                             )}
                         </Button>
                     </DropdownMenuTrigger>

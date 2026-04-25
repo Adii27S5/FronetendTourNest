@@ -543,8 +543,12 @@ const SignIn = () => {
           </div>
         </div>
         <div className={`animate-scale-in delay-200 ${!selectedRole ? 'opacity-30 pointer-events-none' : 'opacity-100'}`}>
-          <div className="bg-white dark:bg-card/50 backdrop-blur-xl p-10 rounded-[3rem] shadow-premium border border-border/50 relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-secondary via-white to-nature" />
+          <div className="bg-white dark:bg-card/50 backdrop-blur-xl p-10 rounded-[3rem] shadow-premium border border-border/50 relative overflow-hidden"
+            style={{ boxShadow: '0 0 0 1px rgba(255,255,255,0.05), 0 24px 64px -12px rgba(0,0,0,0.18)' }}
+          >
+            {/* Animated shimmer top bar */}
+            <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-secondary via-primary to-nature" />
+            <div className="absolute top-0 left-0 w-24 h-1.5 bg-white/60 blur-sm animate-[shimmer_2s_ease-in-out_infinite]" style={{animation: 'shimmer 2s ease-in-out infinite'}} />
             <div className="space-y-6">
               <div className="text-center space-y-2">
                 <h2 className="text-3xl font-display font-black tracking-tight">
@@ -565,7 +569,7 @@ const SignIn = () => {
                         placeholder={t("placeholderName")}
                         value={fullName}
                         onChange={(e) => setFullName(e.target.value)}
-                        className="pl-12 h-14 rounded-2xl bg-muted/30 border-2 border-transparent focus:border-secondary transition-all font-bold"
+                        className="pl-12 h-14 rounded-2xl bg-muted/30 border-2 border-transparent focus:border-secondary transition-colors font-bold"
                         required={!isLogin}
                       />
                     </div>
@@ -580,7 +584,7 @@ const SignIn = () => {
                       placeholder={t("placeholderEmail")}
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="pl-12 h-14 rounded-2xl bg-muted/30 border-2 border-transparent focus:border-secondary transition-all font-bold"
+                      className="pl-12 h-14 rounded-2xl bg-muted/30 border-2 border-transparent focus:border-secondary transition-colors font-bold"
                       required
                     />
                   </div>
@@ -605,7 +609,7 @@ const SignIn = () => {
                       placeholder={t("placeholderPassword")}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="pl-12 h-14 rounded-2xl bg-muted/30 border-2 border-transparent focus:border-secondary transition-all font-bold"
+                      className="pl-12 h-14 rounded-2xl bg-muted/30 border-2 border-transparent focus:border-secondary transition-colors font-bold"
                       required
                     />
                   </div>
