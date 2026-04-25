@@ -14,7 +14,7 @@ const HeroSection = () => {
 
   const trendingCities = [
     { name: "Kolkata", id: "kolkata" },
-    { name: "Leh Ladakh", id: "leh" },
+    { name: "Kerala", id: "kerala" },
     { name: "Munnar", id: "munnar" },
     { name: "Varanasi", id: "varanasi" },
     { name: "Goa", id: "goa" },

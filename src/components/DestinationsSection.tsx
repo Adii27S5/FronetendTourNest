@@ -21,9 +21,9 @@ interface Destination {
   name: string;
   state: string;
   description: string;
-  homestayCount: number;
   startingPrice: number;
   tags: (keyof typeof translations.en)[];
+  searchLocation?: string;
 }
 
 const destinations: Destination[] = [
@@ -41,6 +41,7 @@ const destinations: Destination[] = [
     id: "2",
     image: goaBeach,
     name: "North Goa",
+    searchLocation: "Goa",
     state: "Goa",
     description: "Vibrant beach shacks, Portuguese heritage, and golden sands. Experience local lifestyle.",
     homestayCount: 256,
@@ -61,6 +62,7 @@ const destinations: Destination[] = [
     id: "4",
     image: keralaHouseboat,
     name: "Alleppey",
+    searchLocation: "Kerala",
     state: "Kerala",
     description: "God's Own Country. Float through serene backwaters on premium houseboat homestays.",
     homestayCount: 210,
@@ -145,7 +147,7 @@ const DestinationsSection = () => {
           {destinations.map((dest) => (
             <motion.div
               key={dest.id}
-              onClick={() => navigate(`/hotels?location=${dest.name}`)}
+              onClick={() => navigate(`/hotels?location=${dest.searchLocation || dest.name}`)}
               className="relative group rounded-[3rem] overflow-hidden shadow-premium h-[450px] md:h-[550px] w-[350px] md:w-[500px] cursor-pointer flex-shrink-0 snap-center"
               whileHover={{ y: -15, scale: 1.02 }}
             >
@@ -184,7 +186,7 @@ const DestinationsSection = () => {
                   <Button
                     onClick={(e) => {
                       e.stopPropagation();
-                      navigate(`/hotels?location=${dest.name}`);
+                      navigate(`/hotels?location=${dest.searchLocation || dest.name}`);
                     }}
                     size="default" className="h-12 px-6 rounded-xl bg-white text-black font-black hover:bg-secondary hover:text-white transition-all shadow-xl"
                   >
