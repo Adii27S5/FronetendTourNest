@@ -6,9 +6,11 @@ import {
     ShieldCheck, Sparkles, Activity, Users, Home, Compass,
     ArrowUpRight, AlertCircle, FileText, CheckCircle2,
     Trash2, Search, ShieldAlert,
-    Clock, Check, X, Star,
+    Clock, Check, X
+} from "lucide-react";
+import { 
     Ticket, MessageSquare, History, Phone, Mail, Eye,
-    TrendingUp, Award, UserCheck, ThumbsUp
+    TrendingUp, Award, UserCheck, ThumbsUp 
 } from "lucide-react";
 import apiClient from '@/config/axios';
 import { useToast } from "@/hooks/use-toast";
@@ -448,7 +450,7 @@ const AdminDashboard = () => {
                                                             <div className="px-3 py-1 bg-muted/50 rounded-lg">{stay.location}</div>
                                                             <div className="px-3 py-1 bg-nature/10 text-nature rounded-lg">{stay.price} / night</div>
                                                             <Button variant="ghost" className="px-3 py-1 bg-secondary/10 text-secondary rounded-lg" onClick={() => setDetailedItem({ type: 'stay_reviews', data: stay })}>
-                                                                 {t('reviewsLabel')} <Star className="w-3 h-3 ml-2 fill-current" />
+                                                                 {t('reviewsLabel')} <Award className="w-3 h-3 ml-2 fill-current" />
                                                              </Button>
                                                          </div>
                                                      </td>
@@ -565,7 +567,7 @@ const AdminDashboard = () => {
                                                     </td>
                                                     <td className="p-10">
                                                         <div className="space-y-2">
-                                                            <div className="flex gap-1">{[...Array(5)].map((_, i) => <Star key={i} className={`w-3 h-3 ${i < rev.rating ? 'fill-gold text-gold' : 'text-muted'}`} />)}</div>
+                                                            <div className="flex gap-1">{[...Array(5)].map((_, i) => <Award key={i} className={`w-3 h-3 ${i < rev.rating ? 'fill-gold text-gold' : 'text-muted'}`} />)}</div>
                                                             <p className="text-xs font-bold text-muted-foreground italic max-w-sm line-clamp-1">"{rev.comment}"</p>
                                                         </div>
                                                     </td>
@@ -715,7 +717,7 @@ const AdminDashboard = () => {
                                                     <div>
                                                         <h4 className="font-black text-lg">{r.user}</h4>
                                                         <div className="flex gap-1">
-                                                            {[...Array(r.rating)].map((_, i) => <Star key={i} className="w-3 h-3 fill-gold text-gold" />)}
+                                                            {[...Array(r.rating)].map((_, i) => <Award key={i} className="w-3 h-3 fill-gold text-gold" />)}
                                                         </div>
                                                     </div>
                                                 </div>
