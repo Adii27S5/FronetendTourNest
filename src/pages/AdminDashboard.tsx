@@ -17,7 +17,7 @@ import { useAppContext } from "@/contexts/AppContext";
 const AdminDashboard = () => {
     const { toast } = useToast();
     const { t } = useAppContext();
-    const [activeView, setActiveView] = useState("overview"); // overview, tourists, stays, tours, bookings, support, reviews
+    const [activeView, setActiveView] = useState("overview");
     const [selectedActivity, setSelectedActivity] = useState<any | null>(null);
     const [detailedItem, setDetailedItem] = useState<{ type: string, data: any } | null>(null);
     const [supportMessages, setSupportMessages] = useState<any[]>([]);
@@ -74,29 +74,17 @@ const AdminDashboard = () => {
                     setStays(staysRes.data);
                 }
                 if (attractionsRes.data) {
-                    setTours(attractionsRes.data); // approved tours
+                    setTours(attractionsRes.data);
                 }
-                // Also fetch ALL tours including pending via a separate call
+                // fetch support/inbox messages
                 try {
-                    const pendingToursRes = await apiClient.get(`/api/attractions/pending`);
-                    setPendingTours(pendingToursRes.data || []);
-                    const tourReports = (pendingToursRes.data || []).map((t: any) => ({
-                        id: `tour_pending_${t.id}`,
-                        tourId: t.id,
-                        title: "New Tour Submission: " + t.title,
-                        user: t.guideEmail ? t.guideEmail.split('@')[0] : "Guide",
-                        email: t.guideEmail || "No Email",
-                        date: "Pending Approval",
-                        type: "Application",
-                        priority: "High",
-                        details: `Guide submitted '${t.title}' in ${t.location}. Category: ${t.category}.`
-                    }));
-                    setReports(prev => [...prev.filter(p => !p.tourId), ...tourReports]);
+                    const suppRes = await apiClient.get(`/api/support`);
+                    if (suppRes.data) setSupportMessages(suppRes.data);
                 } catch {}
                 if (supportRes.data) {
                     const supportReports = supportRes.data.map((r: any) => ({
                         id: r.id.toString(),
-                        title: "Support Request: " + r.subject,
+                        title: "Support: " + r.subject,
                         user: r.name,
                         email: r.email,
                         date: new Date(r.createdAt).toLocaleDateString(),
@@ -121,25 +109,6 @@ const AdminDashboard = () => {
                     details: `Submission for '${t.title}' in ${t.location}. Check details and authorize.`
                 }));
 
-                // Fetch Support/Inbox messages
-                try {
-                    const suppRes = await apiClient.get(`/api/support`);
-                    if (suppRes.data) {
-                        setSupportMessages(suppRes.data);
-                        const supportReports = suppRes.data.map((r: any) => ({
-                            id: r.id.toString(),
-                            title: "Support: " + r.subject,
-                            user: r.name,
-                            email: r.email,
-                            date: new Date(r.createdAt).toLocaleDateString(),
-                            type: "Support",
-                            priority: "Normal",
-                            details: "[Subject: " + r.subject + "] - Message: " + r.message
-                        }));
-                        setReports(prev => [...prev.filter(p => p.type !== 'Support'), ...supportReports]);
-                    }
-                } catch {}
-
                 // Fetch Pending Stays for Approval
                 const pendingStaysRes = await apiClient.get(`/api/homestays/pending`);
                 if (pendingStaysRes.data) {
@@ -158,7 +127,8 @@ const AdminDashboard = () => {
                 }));
 
                 setReports(prev => [
-                    ...prev.filter(p => !p.stayId),
+                    ...prev.filter(p => !p.tourId && !p.stayId),
+                    ...tourReports,
                     ...stayReports
                 ]);
             } catch (error) {
@@ -281,11 +251,8 @@ const AdminDashboard = () => {
             const response = await apiClient.put(`/api/bookings/${id}`, { ...booking, status });
             if (response.data) {
                 setBookings(prev => prev.map(b => b.id === id ? { ...b, status } : b));
-                const label = status === 'Approved' ? 'approved' : 'rejected';
-                toast({ title: `Booking ${label}`, description: `Booking #${id} is now ${status}.` });
-            } else {
-                throw new Error("Update failed");
-            }
+                toast({ title: status === 'Approved' ? 'Booking Approved' : 'Booking Rejected', description: `Booking #${id} is now ${status}.` });
+            } else throw new Error("Update failed");
         } catch (error) {
             console.error("Status update error:", error);
             toast({ title: "Action Failed", description: "Could not update status.", variant: "destructive" });
@@ -311,13 +278,13 @@ const AdminDashboard = () => {
 
                         <div className="flex flex-wrap bg-white dark:bg-card p-2 rounded-3xl shadow-premium border border-border/50">
                             {[
-                                                        { id: "overview", label: t("overview"), icon: Activity },
+                                { id: "overview", label: t("overview"), icon: Activity },
                                 { id: "tourists", label: t("touristsLabel"), icon: Users },
                                 { id: "stays", label: t("staysLabel"), icon: Home },
                                 { id: "tours", label: t("toursLabel"), icon: Compass },
                                 { id: "bookings", label: t("bookings"), icon: Ticket },
-                                { id: "inbox", label: "Inbox", icon: MessageSquare },
-                                { id: "support", label: t("supportLabel"), icon: Phone },
+                                { id: "inbox", label: "Inbox", icon: Mail },
+                                { id: "support", label: t("supportLabel"), icon: MessageSquare },
                                 { id: "reviews", label: t("reviewsLabel"), icon: ThumbsUp }
                             ].map((tab) => (
                                 <button
@@ -498,7 +465,7 @@ const AdminDashboard = () => {
                                                         <div className="space-y-1">
                                                             <div className="font-black text-2xl group-hover:text-secondary transition-colors">{booking.entity}</div>
                                                             <div className="text-sm font-bold text-muted-foreground opacity-70 italic font-sans">{t('guests')}: {booking.user} ({booking.userEmail})</div>
-                                                            <div className="text-xs text-muted-foreground/60 font-bold">{booking.date}</div>
+                                                            <div className="text-xs text-muted-foreground/60">{booking.date}</div>
                                                         </div>
                                                     </td>
                                                     <td className="p-10">
@@ -512,24 +479,25 @@ const AdminDashboard = () => {
                                                         </div>
                                                     </td>
                                                     <td className="p-10 text-center space-x-2">
-                                                        <Button variant="ghost" title="Approve" className="w-12 h-12 rounded-xl text-nature hover:bg-nature/10" onClick={() => updateBookingStatus(booking.id, 'Approved')}>
+                                                        <Button title="Approve" variant="ghost" className="w-12 h-12 rounded-xl text-nature hover:bg-nature/10" onClick={() => updateBookingStatus(booking.id, 'Approved')}>
                                                             <CheckCircle2 className="w-6 h-6" />
                                                         </Button>
-                                                        <Button variant="ghost" title="Reject" className="w-12 h-12 rounded-xl text-destructive hover:bg-destructive/10" onClick={() => updateBookingStatus(booking.id, 'Rejected')}>
+                                                        <Button title="Reject" variant="ghost" className="w-12 h-12 rounded-xl text-destructive hover:bg-destructive/10" onClick={() => updateBookingStatus(booking.id, 'Rejected')}>
                                                             <X className="w-6 h-6" />
                                                         </Button>
-                                                        <Button variant="ghost" title="Delete" className="w-12 h-12 rounded-xl text-muted-foreground/60 hover:bg-destructive/10 hover:text-destructive" onClick={() => handleDelete('booking', booking.id)}>
+                                                        <Button title="Delete" variant="ghost" className="w-12 h-12 rounded-xl text-muted-foreground hover:bg-muted" onClick={() => handleDelete('booking', booking.id)}>
                                                             <Trash2 className="w-6 h-6" />
                                                         </Button>
                                                     </td>
                                                 </tr>
                                             ))}
-                                             {activeView === 'tours' && (tours.length === 0 ? (
-                                                <tr><td colSpan={3} className="p-20 text-center">
-                                                    <Compass className="w-12 h-12 text-muted-foreground/20 mx-auto mb-4" />
-                                                    <p className="font-black text-muted-foreground uppercase tracking-widest text-[10px] italic">No approved tours. Approve pending ones from Overview.</p>
+                                             {activeView === 'tours' && tours.length === 0 && (
+                                                <tr><td colSpan={3} className="p-16 text-center">
+                                                    <Compass className="w-10 h-10 text-muted-foreground/20 mx-auto mb-3" />
+                                                    <p className="font-black text-muted-foreground uppercase tracking-widest text-[10px]">No approved tours yet — approve pending ones from Overview.</p>
                                                 </td></tr>
-                                            ) : tours.map(tour => (
+                                            )}
+                                             {activeView === 'tours' && tours.map(tour => (
                                                 <tr key={tour.id} className="hover:bg-muted/5 transition-colors group">
                                                     <td className="p-10">
                                                         <div className="flex items-center gap-6">
@@ -556,7 +524,7 @@ const AdminDashboard = () => {
                                                     </td>
                                                 </tr>
                                             ))}
-                                            {activeView === 'support' && supportFeed.map(msg => (
+                                            {activeView === 'support' && supportMessages.map(msg => (
                                                 <tr key={msg.id} className="hover:bg-muted/5 transition-colors group">
                                                     <td className="p-10">
                                                         <div className="flex items-center gap-6">
@@ -597,7 +565,7 @@ const AdminDashboard = () => {
                                                     </td>
                                                     <td className="p-10">
                                                         <div className="space-y-2">
-                                                            </div>
+                                                            <div className="flex gap-1">{[...Array(5)].map((_, i) => <Star key={i} className={`w-3 h-3 ${i < rev.rating ? 'fill-gold text-gold' : 'text-muted'}`} />)}</div>
                                                             <p className="text-xs font-bold text-muted-foreground italic max-w-sm line-clamp-1">"{rev.comment}"</p>
                                                         </div>
                                                     </td>
@@ -616,13 +584,12 @@ const AdminDashboard = () => {
                                         <p className="font-black text-muted-foreground uppercase tracking-widest text-[10px] italic">No support inquiries found.</p>
                                     </div>
                                 )}
-                                {/* Inbox - Customer Requests */}
                                 {activeView === 'inbox' && (
                                     <div className="p-8 space-y-4">
                                         {supportMessages.length === 0 ? (
                                             <div className="text-center py-20">
                                                 <MessageSquare className="w-12 h-12 text-muted-foreground/20 mx-auto mb-4" />
-                                                <p className="font-black text-muted-foreground uppercase tracking-widest text-[10px]">No customer messages</p>
+                                                <p className="font-black text-muted-foreground uppercase tracking-widest text-[10px]">No customer messages yet</p>
                                             </div>
                                         ) : supportMessages.map((msg: any) => (
                                             <div key={msg.id} className="group flex items-start gap-6 p-8 bg-muted/20 rounded-[2rem] border border-border/40 hover:border-secondary/30 hover:shadow-soft transition-all">
@@ -635,18 +602,16 @@ const AdminDashboard = () => {
                                                             <h4 className="font-black text-xl group-hover:text-secondary transition-colors">{msg.name}</h4>
                                                             <p className="text-sm font-bold text-muted-foreground">{msg.email}</p>
                                                         </div>
-                                                        <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 shrink-0">
+                                                        <span className="text-[10px] font-bold text-muted-foreground/60 shrink-0">
                                                             {msg.createdAt ? new Date(msg.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : 'Recent'}
                                                         </span>
                                                     </div>
-                                                    <p className="text-secondary font-bold text-sm mb-2">{msg.subject}</p>
+                                                    <p className="text-secondary font-bold text-sm mb-1">{msg.subject}</p>
                                                     <p className="text-muted-foreground font-medium leading-relaxed line-clamp-2">{msg.message}</p>
                                                 </div>
-                                                <div className="flex flex-col gap-2">
-                                                    <a href={`mailto:${msg.email}?subject=Re: ${msg.subject}`}>
-                                                        <Button size="sm" className="rounded-xl h-10 px-4 bg-secondary text-white font-bold text-xs">Reply</Button>
-                                                    </a>
-                                                </div>
+                                                <a href={`mailto:${msg.email}?subject=Re: ${msg.subject}`}>
+                                                    <Button size="sm" className="rounded-xl h-10 px-4 bg-secondary text-white font-bold text-xs flex-shrink-0">Reply</Button>
+                                                </a>
                                             </div>
                                         ))}
                                     </div>
