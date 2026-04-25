@@ -266,4 +266,27 @@
   .cursor-active {
     @apply scale-90 opacity-60;
   }
+
+  /* Realistic 3D Effects */
+  .effect-3d {
+    transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+    transform-style: preserve-3d;
+    perspective: 1000px;
+  }
+  
+  .effect-3d:hover {
+    transform: translateY(-12px) rotateX(4deg) rotateY(-4deg) scale(1.03);
+    box-shadow: 
+      30px 30px 80px rgba(0, 0, 0, 0.15),
+      -10px -10px 40px rgba(255, 255, 255, 0.8),
+      inset 0 0 0 1px rgba(255,255,255,0.3);
+  }
+
+  .glass-3d {
+    background: linear-gradient(135deg, rgba(255,255,255,0.5), rgba(255,255,255,0.1));
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.4);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+  }
 }

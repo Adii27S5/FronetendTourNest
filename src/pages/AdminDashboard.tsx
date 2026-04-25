@@ -308,7 +308,7 @@ const AdminDashboard = () => {
                             <div className="space-y-12">
                                 <div className="grid lg:grid-cols-4 gap-6">
                                     {stats.map((stat, i) => (
-                                        <Card key={i} className="rounded-[2.5rem] border-border/50 shadow-soft overflow-hidden group hover:shadow-premium transition-all">
+                                        <Card key={i} className="rounded-[2.5rem] border-border/50 shadow-soft overflow-hidden group border border-border/50 flex flex-col h-full effect-3d">
                                             <CardContent className="p-8 flex items-center gap-6">
                                                 <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-glow ${stat.color} group-hover:rotate-12 transition-all`}>
                                                     <stat.icon className="w-7 h-7" />
@@ -333,7 +333,7 @@ const AdminDashboard = () => {
                                                 </div>
                                             ) : (
                                                 reports.map((report) => (
-                                                    <Card key={report.id} className="rounded-[2.5rem] bg-white border-border/50 shadow-soft hover:shadow-premium transition-all group cursor-pointer overflow-hidden border-l-4 border-l-secondary" onClick={() => setSelectedActivity(report)}>
+                                                    <Card key={report.id} className="rounded-[2.5rem] bg-white border-border/50 shadow-soft group cursor-pointer overflow-hidden border-l-4 border-l-secondary effect-3d" onClick={() => setSelectedActivity(report)}>
                                                         <CardContent className="p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                                                             <div className="flex items-center gap-6">
                                                                 <div className="w-14 h-14 rounded-2xl bg-muted/50 flex items-center justify-center text-muted-foreground group-hover:bg-secondary/10 group-hover:text-secondary transition-all">
@@ -360,7 +360,7 @@ const AdminDashboard = () => {
 
                                     <div className="space-y-8">
                                         <h2 className="text-3xl font-display font-black">{t('adminIntelligence')}</h2>
-                                        <Card className="rounded-[3rem] p-10 bg-foreground text-background shadow-premium space-y-8 relative overflow-hidden">
+                                        <Card className="rounded-[3rem] p-10 bg-foreground text-background shadow-premium space-y-8 relative overflow-hidden effect-3d">
                                             <div className="absolute top-0 left-0 w-full h-full bg-gradient-tricolor opacity-10" />
                                             <div className="relative z-10 space-y-8">
                                                 <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mx-auto border border-white/20">

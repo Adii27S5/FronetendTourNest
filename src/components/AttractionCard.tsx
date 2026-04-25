@@ -41,7 +41,7 @@ const AttractionCard = ({
   return (
     <div 
       onClick={handleNavigate}
-      className={`bg-white dark:bg-card rounded-[2.5rem] shadow-soft hover:shadow-premium transition-all duration-500 overflow-hidden group hover:-translate-y-2 border border-border/50 flex flex-col h-full cursor-pointer ${className}`}
+      className={`bg-white dark:bg-card rounded-[2.5rem] shadow-soft hover:shadow-premium transition-all duration-500 overflow-hidden group border border-border/50 flex flex-col h-full cursor-pointer effect-3d ${className}`}
     >
       {/* Image Section */}
       <div className="relative overflow-hidden h-60">

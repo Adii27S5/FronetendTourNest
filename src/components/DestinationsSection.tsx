@@ -149,8 +149,7 @@ const DestinationsSection = () => {
             <motion.div
               key={dest.id}
               onClick={() => navigate(`/hotels?location=${dest.searchLocation || dest.name}`)}
-              className="relative group rounded-[3rem] overflow-hidden shadow-premium h-[450px] md:h-[550px] w-[350px] md:w-[500px] cursor-pointer flex-shrink-0 snap-center"
-              whileHover={{ y: -15, scale: 1.02 }}
+              className="relative group rounded-[3rem] overflow-hidden shadow-premium h-[450px] md:h-[550px] w-[350px] md:w-[500px] cursor-pointer flex-shrink-0 snap-center effect-3d"
             >
               <img 
                 src={dest.image} 

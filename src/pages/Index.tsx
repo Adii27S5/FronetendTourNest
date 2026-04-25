@@ -10,7 +10,7 @@ import AttractionCard from "@/components/AttractionCard";
 import StatsSection from "@/components/StatsSection";
 import DestinationsSection from "@/components/DestinationsSection";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight, Sparkles, Star, MapPin, Heart, Globe, Home } from "lucide-react";
 import { useAppContext } from "@/contexts/AppContext";
 
 // India Assets

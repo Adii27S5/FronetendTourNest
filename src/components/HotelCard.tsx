@@ -60,7 +60,7 @@ const HotelCard = ({ id, name, location, price, rating, image, region, bedrooms,
   };
 
   return (
-    <div className="group bg-white dark:bg-card rounded-[2.5rem] overflow-hidden shadow-soft hover:shadow-premium transition-shadow duration-300 border border-border/50 flex flex-col h-full">
+    <div className="group bg-white dark:bg-card rounded-[2.5rem] overflow-hidden shadow-soft border border-border/50 flex flex-col h-full effect-3d">
       {/* Image Container */}
       <div className="relative h-64 overflow-hidden rounded-t-[2.5rem]">
         <img

@@ -26,7 +26,7 @@ const HomestayCard = ({ id, image, title, location, rating, price, host, guests,
   const favorite = isFavorite(id);
 
   return (
-    <div className="group bg-white dark:bg-card rounded-[2.5rem] overflow-hidden shadow-soft hover:shadow-premium transition-shadow duration-300 border border-border/50 flex flex-col h-full">
+    <div className="group bg-white dark:bg-card rounded-[2.5rem] overflow-hidden shadow-soft border border-border/50 flex flex-col h-full effect-3d">
       {/* Shine Effect - removed for perf */}
 
       {/* Image Container */}

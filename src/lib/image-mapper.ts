@@ -56,7 +56,6 @@ const imageMap: Record<string, string> = {
   'chole-bhature.png': '/src/assets/chole-bhature.png',
   'udaipur-lake.png': '/src/assets/udaipur-lake.png',
   'shimla-snow.png': '/src/assets/shimla-snow.png',
-  'dal-lake.png': '/src/assets/dal-lake.png',
   'havelock-eco.png': '/src/assets/havelock-eco.png',
 };
 

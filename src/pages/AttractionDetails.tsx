@@ -309,6 +309,7 @@ const AttractionDetails = () => {
                                     )}
                                 </div>
                             </div>
+                        </div>
                     </div>
 
                     {/* Right Column: Review Section */}
