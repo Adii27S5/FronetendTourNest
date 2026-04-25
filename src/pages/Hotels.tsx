@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import NavigationHeader from '@/components/NavigationHeader';
 import HotelCard from '@/components/HotelCard';
 import apiClient from '@/config/axios';
@@ -182,7 +182,9 @@ const Hotels: React.FC = () => {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 className="h-full"
               >
-                <HotelCard {...hotel} onDelete={handleDelete} />
+                <Link to={`/hotel/${hotel.id}`}>
+                  <HotelCard {...hotel} onDelete={handleDelete} />
+                </Link>
               </motion.div>
             ))}
           </div>
