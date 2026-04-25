@@ -65,17 +65,41 @@ const SignIn = () => {
         }
       }
 
-      if (isLogin) {
+        if (isLogin) {
         const { error } = await signIn(email, password);
         if (error) throw error;
         localStorage.setItem('user_role', selectedRole);
 
-        // Try to recover name from previous logs or set a default if not found
-        const existingName = localStorage.getItem('user_name') || email.split('@')[0];
-        localStorage.setItem('user_name', existingName);
+        // Always fetch the real name from backend on login (fixes stale name bug)
+        let userName = email.split('@')[0];
+        try {
+          const backendUser = await apiClient.get(`/api/users/email/${email}`);
+          const fetchedName = backendUser.data?.fullName || backendUser.data?.name;
+          if (fetchedName && fetchedName !== 'OAUTH_NO_PASSWORD') {
+            userName = fetchedName;
+          }
+        } catch (checkError: any) {
+          if (checkError.response && checkError.response.status === 404) {
+            // User missing in backend — sync them
+            console.log("User missing in backend, syncing...");
+            try {
+              await apiClient.post(`/api/users`, {
+                name: userName,
+                fullName: userName,
+                email: email,
+                role: selectedRole,
+                joined: new Date().toLocaleDateString(),
+                bookingsCount: 0,
+                status: 'Active'
+              });
+            } catch (syncError) {
+              console.error("Failed to sync user:", syncError);
+            }
+          }
+        }
+        localStorage.setItem('user_name', userName);
 
         const adminReports = JSON.parse(localStorage.getItem('admin_reports') || '[]');
-        const userName = localStorage.getItem('user_name') || email.split('@')[0];
         adminReports.unshift({
           id: `log_${Math.random().toString(36).substr(2, 9)}`,
           title: "User Session Started",
@@ -86,29 +110,6 @@ const SignIn = () => {
           email: email
         });
         localStorage.setItem('admin_reports', JSON.stringify(adminReports.slice(0, 50)));
-
-        // Sync with Spring Boot Backend on login if missing
-        try {
-          try {
-            await apiClient.get(`/api/users/email/${email}`);
-          } catch (checkError: any) {
-            if (checkError.response && checkError.response.status === 404) {
-              console.log("User missing in backend, syncing...");
-              await apiClient.post(`/api/users`, {
-                name: userName,
-                fullName: userName,
-                email: email,
-                role: selectedRole,
-                joined: new Date().toLocaleDateString(),
-                bookingsCount: 0,
-                status: 'Active'
-              });
-            }
-          }
-        } catch (backendError) {
-          console.error("Failed to sync user to backend during login:", backendError);
-          toast.error("Cloud sync failed. Local session active.");
-        }
 
         toast.success(`${t("welcome")} ${userName}!`);
         navigate(returnUrl || rolePaths[selectedRole as keyof typeof rolePaths]);

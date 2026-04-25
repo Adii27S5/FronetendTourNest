@@ -25,16 +25,33 @@ const NavigationHeader = () => {
         updatePreferences({ language: newLang });
     };
 
+    const [displayName, setDisplayName] = useState(localStorage.getItem('user_name') || user?.email?.split('@')[0] || 'Explorer');
+
+    // Always fetch real name from backend when user is logged in
+    useEffect(() => {
+        if (user?.email) {
+            fetch(`${API_BASE_URL}/api/users/email/${user.email}`)
+                .then(res => res.ok ? res.json() : null)
+                .then(data => {
+                    if (data) {
+                        const realName = data.fullName || data.name;
+                        if (realName && realName !== 'OAUTH_NO_PASSWORD') {
+                            localStorage.setItem('user_name', realName);
+                            setDisplayName(realName);
+                        }
+                    }
+                })
+                .catch(() => {});
+        }
+    }, [user]);
+
     const getInitials = () => {
-        const name = localStorage.getItem('user_name');
-        if (name) return name.charAt(0).toUpperCase();
+        if (displayName) return displayName.charAt(0).toUpperCase();
         if (user?.email) return user.email.charAt(0).toUpperCase();
-        return "U";
+        return 'U';
     };
 
-    const getUserDisplayName = () => {
-        return localStorage.getItem('user_name') || user?.email?.split('@')[0] || "Explorer";
-    };
+    const getUserDisplayName = () => displayName;
 
     const [notifications, setNotifications] = useState<any[]>([]);
     const [unreadCount, setUnreadCount] = useState(0);
