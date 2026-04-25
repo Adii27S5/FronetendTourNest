@@ -57,7 +57,7 @@ const Attractions = () => {
     }
   }, [searchParams]);
 
-  const categories = ['all', 'Cultural', 'Adventure', 'Nature', 'Heritage', 'Food'];
+  const categories = ['all', 'Cultural', 'Adventure', 'Nature', 'Heritage', 'Food', 'Spiritual'];
 
   const getCategoryLabel = (cat: string) => {
     switch(cat) {
@@ -67,6 +67,7 @@ const Attractions = () => {
       case 'Nature': return t('catNature');
       case 'Heritage': return t('catHeritage');
       case 'Food': return t('catFood');
+      case 'Spiritual': return 'Spiritual';
       default: return cat;
     }
   };

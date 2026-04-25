@@ -33,22 +33,22 @@ const Index = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [homestaysRes, attractionsRes, hotelsRes] = await Promise.all([
+        const [homestaysRes, attractionsRes, hotelsRes] = await Promise.allSettled([
           apiClient.get(`/api/homestays`),
           apiClient.get(`/api/attractions`),
           apiClient.get(`/api/hotels`)
         ]);
         
-        if (homestaysRes.data) {
-          setFeaturedStays(homestaysRes.data.slice(0, 6));
+        if (homestaysRes.status === 'fulfilled' && homestaysRes.value.data) {
+          setFeaturedStays(homestaysRes.value.data.slice(0, 6));
         }
         
-        if (attractionsRes.data) {
-          setMustVisits(attractionsRes.data.slice(0, 4));
+        if (attractionsRes.status === 'fulfilled' && attractionsRes.value.data) {
+          setMustVisits(attractionsRes.value.data.slice(0, 4));
         }
 
-        if (hotelsRes.data) {
-          setFeaturedHotels(hotelsRes.data.slice(0, 3));
+        if (hotelsRes.status === 'fulfilled' && hotelsRes.value.data) {
+          setFeaturedHotels(hotelsRes.value.data.slice(0, 3));
         }
       } catch (error) {
         console.error("Error fetching landing page data:", error);
@@ -169,7 +169,9 @@ const Index = () => {
                 transition={{ type: "spring", stiffness: 100, damping: 20, delay: index * 0.05 }}
                 whileHover={{ y: -10 }}
               >
-                <HotelCard {...hotel} />
+                <Link to={`/hotel/${hotel.id}`}>
+                  <HotelCard {...hotel} />
+                </Link>
               </motion.div>
             ))}
           </div>

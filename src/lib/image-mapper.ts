@@ -31,7 +31,8 @@ const imageMap: Record<string, string> = {
   'amritsar-kulcha.png': 'https://images.unsplash.com/photo-1544985390-31d04b6847ba?auto=format&fit=crop&q=80&w=800',
   'varanasi_chat.png': 'https://images.unsplash.com/photo-1544985390-31d04b6847ba?auto=format&fit=crop&q=80&w=800',
   'malaiyyo-dessert.png': 'https://images.unsplash.com/photo-1496116218417-1a781b1c416c?auto=format&fit=crop&q=80&w=800',
-  'banarasi-paan.png': 'https://images.unsplash.com/photo-1545247181-516773cae754?auto=format&fit=crop&q=80&w=800'
+  'banarasi-paan.png': 'https://images.unsplash.com/photo-1545247181-516773cae754?auto=format&fit=crop&q=80&w=800',
+  'andaman-beach.jpg': 'https://images.unsplash.com/photo-1589394815804-964ed9be2eb3?auto=format&fit=crop&q=80&w=800'
 };
 
 // Iterate over loaded assets and match the filename automatically!

@@ -19,9 +19,10 @@ interface HomestayCardProps {
   bedrooms?: number;
   bathrooms?: number;
   region?: string;
+  description?: string;
 }
 
-const HomestayCard = ({ id, image, title, location, rating, price, host, guests, amenities, bedrooms, bathrooms, region }: HomestayCardProps) => {
+const HomestayCard = ({ id, image, title, location, rating, price, host, guests, amenities, bedrooms, bathrooms, region, description }: HomestayCardProps) => {
   const { isFavorite, addFavorite, removeFavorite, t } = useAppContext();
   const favorite = isFavorite(id);
 
@@ -138,7 +139,7 @@ const HomestayCard = ({ id, image, title, location, rating, price, host, guests,
         </h3>
 
         <p className="text-muted-foreground text-sm font-medium mb-6 line-clamp-2 italic">
-          "{amenities?.join(' • ') ?? t("noAmenitiesListed")}"
+          "{description || amenities?.join(' • ') || t("noAmenitiesListed")}"
         </p>
 
         <div className="mt-auto flex items-center justify-between pt-6 border-t border-border/50">
