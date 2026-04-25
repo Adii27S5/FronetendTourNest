@@ -10,9 +10,8 @@ import AttractionCard from "@/components/AttractionCard";
 import StatsSection from "@/components/StatsSection";
 import DestinationsSection from "@/components/DestinationsSection";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, MapPin, Star, Home, Sparkles, Globe, Heart } from "lucide-react";
+import { ArrowRight, Sparkles } from "lucide-react";
 import { useAppContext } from "@/contexts/AppContext";
-import { motion, useScroll, useSpring } from "framer-motion";
 
 // India Assets
 import manaliSnow from "@/assets/manali-snow.jpg";
@@ -59,78 +58,42 @@ const Index = () => {
 
 
 
-  const { scrollYProgress } = useScroll();
-  const scaleX = useSpring(scrollYProgress, {
-    stiffness: 100,
-    damping: 30,
-    restDelta: 0.001
-  });
-
-  const containerVariants = {
-    hidden: { opacity: 0, y: 50 },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: { duration: 0.8 }
-    }
-  };
-
-
   return (
     <div className="min-h-screen bg-background selection:bg-secondary/20">
-      <motion.div
-        className="fixed top-0 left-0 right-0 h-1.5 bg-secondary origin-[0%] z-[100]"
-        style={{ scaleX }}
-      />
       <NavigationHeader />
       <HeroSection />
       <StatsSection />
       <DestinationsSection />
 
       {/* Featured Homestays Section */}
-      <section className="py-32 px-4 bg-white dark:bg-card/30 relative">
+      <section className="py-24 px-4 bg-white dark:bg-card/30 relative">
         <div className="container mx-auto">
-          <motion.div 
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={containerVariants}
-            className="text-center mb-16 space-y-4"
-          >
+          <div className="text-center mb-12 space-y-4 animate-fade-in">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-secondary/5 rounded-full">
               <Sparkles className="w-4 h-4 text-secondary" />
               <span className="text-secondary font-black uppercase tracking-[0.2em] text-[10px]">{t("premiumCurations")}</span>
             </div>
-            <h2 className="text-6xl md:text-8xl font-display font-black tracking-tighter text-foreground leading-[0.85]">
-              Heritage <span className="text-secondary italic">{t("heritageStays").includes("Heritage") ? "Stays" : t("heritageStays")}</span>
+            <h2 className="text-5xl md:text-7xl font-display font-black tracking-tighter text-foreground leading-[0.85]">
+              Heritage <span className="text-secondary italic">Stays</span>
             </h2>
             <p className="text-xl text-muted-foreground max-w-xl mx-auto font-medium">
               {t("staysSubtitle")}
             </p>
-          </motion.div>
+          </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
-            {featuredStays.map((stay, index) => (
-              <motion.div 
-                key={stay.id}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{ type: "spring", stiffness: 100, damping: 20, delay: index * 0.05 }}
-                whileHover={{ y: -10 }}
-              >
-                <Link to={`/homestay/${stay.id}`}>
-                  <HomestayCard {...stay} />
-                </Link>
-              </motion.div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {featuredStays.map((stay) => (
+              <Link key={stay.id} to={`/homestay/${stay.id}`} className="hover:-translate-y-1 transition-transform duration-200">
+                <HomestayCard {...stay} />
+              </Link>
             ))}
           </div>
 
-          <div className="mt-20 text-center">
+          <div className="mt-14 text-center">
             <Link to="/homestays">
-              <Button size="lg" className="h-16 px-12 rounded-2xl bg-foreground text-background font-black text-lg hover:bg-secondary hover:text-white transition-all shadow-xl group">
+              <Button size="lg" className="h-14 px-10 rounded-2xl bg-foreground text-background font-black hover:bg-secondary hover:text-white transition-colors shadow-xl group">
                 {t("exploreMore")}
-                <ArrowRight className="w-6 h-6 ml-3 group-hover:translate-x-2 transition-transform" />
+                <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>
           </div>
@@ -138,49 +101,31 @@ const Index = () => {
       </section>
 
       {/* Premium Hotels Section */}
-      <section className="py-32 px-4 bg-muted/20 relative">
+      <section className="py-24 px-4 bg-muted/20 relative">
         <div className="container mx-auto">
-          <motion.div 
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={containerVariants}
-            className="text-center mb-16 space-y-4"
-          >
+          <div className="text-center mb-12 space-y-4 animate-fade-in">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-primary/5 rounded-full">
               <Sparkles className="w-4 h-4 text-primary" />
               <span className="text-primary font-black uppercase tracking-[0.2em] text-[10px]">{t("luxuryLabel")}</span>
             </div>
-            <h2 className="text-6xl md:text-8xl font-display font-black tracking-tighter text-foreground leading-[0.85]">
+            <h2 className="text-5xl md:text-7xl font-display font-black tracking-tighter text-foreground leading-[0.85]">
               Grand <span className="text-primary italic">{t("hotelsLabel")}</span>
             </h2>
-            <p className="text-xl text-muted-foreground max-w-xl mx-auto font-medium">
-              {t("hotelsSubtitle")}
-            </p>
-          </motion.div>
+          </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
-            {featuredHotels.map((hotel, index) => (
-              <motion.div 
-                key={hotel.id}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{ type: "spring", stiffness: 100, damping: 20, delay: index * 0.05 }}
-                whileHover={{ y: -10 }}
-              >
-                <Link to={`/hotel/${hotel.id}`}>
-                  <HotelCard {...hotel} />
-                </Link>
-              </motion.div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {featuredHotels.map((hotel) => (
+              <Link key={hotel.id} to={`/hotel/${hotel.id}`} className="hover:-translate-y-1 transition-transform duration-200">
+                <HotelCard {...hotel} />
+              </Link>
             ))}
           </div>
 
-          <div className="mt-20 text-center">
+          <div className="mt-14 text-center">
             <Link to="/hotels">
-              <Button size="lg" className="h-16 px-12 rounded-2xl bg-foreground text-background font-black text-lg hover:bg-primary hover:text-white transition-all shadow-xl group">
+              <Button size="lg" className="h-14 px-10 rounded-2xl bg-foreground text-background font-black hover:bg-primary hover:text-white transition-colors shadow-xl group">
                 {t("viewAllHotels")}
-                <ArrowRight className="w-6 h-6 ml-3 group-hover:translate-x-2 transition-transform" />
+                <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>
           </div>

@@ -73,7 +73,7 @@ const NavigationHeader = () => {
     useEffect(() => {
         if (user) {
             fetchNotifications();
-            const interval = setInterval(fetchNotifications, 30000); // Poll every 30s
+            const interval = setInterval(fetchNotifications, 60000); // Poll every 60s
             return () => clearInterval(interval);
         }
     }, [user]);
