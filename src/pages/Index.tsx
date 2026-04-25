@@ -113,10 +113,10 @@ const Index = () => {
             {featuredStays.map((stay, index) => (
               <motion.div 
                 key={stay.id}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ type: "spring", stiffness: 100, damping: 20, delay: index * 0.05 }}
                 whileHover={{ y: -10 }}
               >
                 <Link to={`/homestay/${stay.id}`}>
@@ -163,10 +163,10 @@ const Index = () => {
             {featuredHotels.map((hotel, index) => (
               <motion.div 
                 key={hotel.id}
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ type: "spring", stiffness: 100, damping: 20, delay: index * 0.05 }}
                 whileHover={{ y: -10 }}
               >
                 <HotelCard {...hotel} />

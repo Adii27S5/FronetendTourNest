@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Star, MapPin, Clock } from "lucide-react";
 import { resolveImage } from "@/lib/image-mapper";
+import { motion } from "framer-motion";
 
 interface AttractionCardProps {
   image: string;
@@ -44,7 +45,10 @@ const AttractionCard = ({
     >
       {/* Image Section */}
       <div className="relative overflow-hidden h-60">
-        <img
+        <motion.img
+          initial={{ opacity: 0, scale: 1.1 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
           src={resolveImage(image)}
           alt={title}
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000"

@@ -7,8 +7,11 @@
 @layer base {
   :root {
     /* Base colors - premium ivory tones */
-    --background: 0 0% 100%;
+    --background: 40 100% 98%;
     --foreground: 220 25% 12%;
+    
+    /* Cultural background pattern (subtle orange/yellow motif) */
+    --cultural-pattern: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23f59e0b' fill-opacity='0.08'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
 
     /* Pearl White for cards */
     --card: 0 0% 100%;
@@ -75,6 +78,7 @@
     /* Dark theme - Charcoal and Deep Navy */
     --background: 226 50% 5%;
     --foreground: 0 0% 98%;
+    --cultural-pattern: none;
 
     --card: 226 40% 10%;
     --card-foreground: 0 0% 98%;
@@ -104,6 +108,42 @@
     --shadow-premium: 0 20px 60px hsl(0 0% 0% / 0.7);
     --shadow-glow: 0 0 40px hsl(32 100% 60% / 0.3);
   }
+
+  .hybrid {
+    /* Hybrid theme - Deep Navy/Slate with vibrant contrasts */
+    --background: 226 60% 8%;
+    --foreground: 0 0% 98%;
+    --cultural-pattern: none;
+
+    /* Glassy cards that stand out */
+    --card: 226 50% 12%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 226 50% 12%;
+    --popover-foreground: 0 0% 98%;
+
+    /* Super vibrant Saffron/Orange for primary actions */
+    --primary: 32 100% 55%;
+    --primary-foreground: 0 0% 10%;
+
+    /* Vibrant Purple/Pink mix for secondary */
+    --secondary: 270 100% 65%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 226 40% 20%;
+    --muted-foreground: 226 20% 75%;
+
+    --accent: 180 100% 40%; /* Cyan accent */
+    --accent-foreground: 0 0% 10%;
+
+    --border: 226 40% 25%;
+    --input: 226 40% 20%;
+    --ring: 180 100% 40%;
+
+    --shadow-soft: 0 8px 30px hsl(0 0% 0% / 0.6);
+    --shadow-premium: 0 20px 80px hsl(270 100% 50% / 0.15);
+    --shadow-glow: 0 0 50px hsl(32 100% 55% / 0.4);
+  }
 }
 
 @layer base {
@@ -113,6 +153,8 @@
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
+    background-image: var(--cultural-pattern);
+    background-attachment: fixed;
   }
 }
 

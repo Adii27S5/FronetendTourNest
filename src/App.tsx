@@ -9,6 +9,7 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import CustomCursor from "@/components/CustomCursor";
+import AnimatedBackground from "@/components/AnimatedBackground";
 import Homestays from "./pages/Homestays";
 import HomestayDetails from "./pages/HomestayDetails";
 import Attractions from "./pages/Attractions";
@@ -35,6 +36,7 @@ const App = () => (
       <AuthProvider>
         <AppProvider>
           <TooltipProvider>
+            <AnimatedBackground />
             <CustomCursor />
             <Toaster />
             <Sonner />

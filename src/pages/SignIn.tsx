@@ -48,9 +48,11 @@ const SignIn = () => {
 
     setIsLoading(true);
     try {
-      // Hardcoded Admin Override
+      // Admin Override via Environment Variables
       if (selectedRole === 'admin') {
-        if (email === "tournestofc@gmail.com" && password === "123456") {
+        const adminEmail = import.meta.env.VITE_ADMIN_EMAIL;
+        const adminPassword = import.meta.env.VITE_ADMIN_PASSWORD;
+        if (email === adminEmail && password === adminPassword) {
           toast.success(t("masterAdminGranted"));
           localStorage.setItem('user_role', 'admin');
           localStorage.setItem('user_name', 'admin');
@@ -105,33 +107,52 @@ const SignIn = () => {
           }
         } catch (backendError) {
           console.error("Failed to sync user to backend during login:", backendError);
+          toast.error("Cloud sync failed. Local session active.");
         }
 
         toast.success(`${t("welcome")} ${userName}!`);
         navigate(returnUrl || rolePaths[selectedRole as keyof typeof rolePaths]);
       } else {
         const { error } = await signUp(email, password, fullName || email.split('@')[0]);
-        if (error) throw error;
+        if (error) {
+           if (error.message.toLowerCase().includes("already registered") || error.message.toLowerCase().includes("already exists")) {
+                toast.info("Account already registered. Attempting to log you in and synchronize data...");
+                const { error: signInError } = await signIn(email, password);
+                if (signInError) throw signInError;
+           } else {
+               throw error;
+           }
+        }
         localStorage.setItem('user_role', selectedRole);
         localStorage.setItem('user_name', fullName || email.split('@')[0]);
 
         const userName = fullName || email.split('@')[0];
         // Sync with Spring Boot Backend
         try {
-          await apiClient.post(`/api/users`, {
-            name: fullName || email.split('@')[0],
-            fullName: fullName || email.split('@')[0],
-            email: email,
-            role: selectedRole,
-            joined: new Date().toLocaleDateString(),
-            bookingsCount: 0,
-            status: 'Active'
-          });
+          // First check if they exist to avoid duplicate errors if they were already registered
+          try {
+            await apiClient.get(`/api/users/email/${email}`);
+            console.log("User already in backend.");
+          } catch (checkError: any) {
+            if (checkError.response && checkError.response.status === 404) {
+               await apiClient.post(`/api/users`, {
+                 name: fullName || email.split('@')[0],
+                 fullName: fullName || email.split('@')[0],
+                 email: email,
+                 password: password,
+                 role: selectedRole,
+                 joined: new Date().toLocaleDateString(),
+                 bookingsCount: 0,
+                 status: 'Active'
+               });
+            }
+          }
         } catch (backendError) {
           console.error("Failed to sync user to backend:", backendError);
+          toast.error("Database sync issue. Profile might not be saved.");
         }
 
-        toast.success(`${t("signUp")} ${userName}!`);
+        toast.success(`${t("welcome")} ${userName}!`);
         navigate(returnUrl || rolePaths[selectedRole as keyof typeof rolePaths]);
       }
     } catch (error: any) {

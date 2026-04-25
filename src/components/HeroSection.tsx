@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Search, MapPin, Users, Sparkles } from "lucide-react";
 import heroImage from "@/assets/manali-snow.jpg";
 import { useAppContext } from "@/contexts/AppContext";
+import { motion } from "framer-motion";
 
 const HeroSection = () => {
   const navigate = useNavigate();
@@ -23,12 +24,15 @@ const HeroSection = () => {
   return (
     <section className="relative h-screen flex items-center justify-center overflow-hidden">
       {/* Background Image */}
-      <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-[10s] hover:scale-110"
+      <motion.div
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: `url(${heroImage})` }}
+        initial={{ scale: 1.15, opacity: 0 }}
+        animate={{ scale: 1.05, opacity: 1 }}
+        transition={{ duration: 1.5, ease: [0.25, 0.1, 0.25, 1] }}
       >
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/20 to-background" />
-      </div>
+      </motion.div>
 
       {/* Floating decorative elements */}
       <div className="absolute top-20 left-10 w-32 h-32 bg-secondary/20 rounded-full blur-3xl animate-float" />
@@ -37,7 +41,11 @@ const HeroSection = () => {
 
       {/* Content */}
       <div className="relative z-10 text-center text-white px-4 max-w-5xl mx-auto">
-        <div className="animate-slide-up">
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ type: "spring", stiffness: 100, damping: 20, delay: 0.2 }}
+        >
           <div className="flex items-center justify-center gap-3 mb-6">
             <Sparkles className="w-5 h-5 text-secondary animate-pulse" />
             <span className="text-white font-black tracking-[0.3em] uppercase text-xs sm:text-sm">{t("guestKing")}</span>
@@ -51,10 +59,14 @@ const HeroSection = () => {
             {t("heroSubtitle")}
             <span className="block mt-2 text-secondary font-bold">{t("heroSubtitle2")}</span>
           </p>
-        </div>
+        </motion.div>
 
         {/* Enhanced Search Bar */}
-        <div className="animate-scale-in delay-300">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ type: "spring", stiffness: 100, damping: 20, delay: 0.3 }}
+        >
           <div className="bg-white/10 backdrop-blur-xl rounded-[2.5rem] p-2 md:p-3 mb-10 max-w-4xl mx-auto shadow-premium border border-white/20 hover:bg-white/15 transition-all text-white">
             <div className="flex flex-col md:flex-row gap-2">
               <div className="relative flex-[2]">
@@ -63,7 +75,7 @@ const HeroSection = () => {
                   placeholder={t("searchPlaceholder")}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && navigate(`/homestays?search=${searchQuery}`)}
+                  onKeyDown={(e) => e.key === 'Enter' && navigate(`/hotels?location=${searchQuery}`)}
                   className="pl-16 h-14 md:h-16 bg-white/10 border-0 text-white text-base md:text-lg placeholder:text-white/60 focus:bg-white/20 transition-all rounded-3xl font-medium"
                 />
               </div>
@@ -75,7 +87,7 @@ const HeroSection = () => {
                 />
               </div>
               <Button
-                onClick={() => navigate(`/homestays?search=${searchQuery}`)}
+                onClick={() => navigate(`/hotels?location=${searchQuery}`)}
                 className="px-6 md:px-10 h-14 md:h-16 text-base md:text-lg font-black rounded-3xl bg-secondary text-white hover:bg-secondary/90 shadow-glow transition-all group"
               >
                 <Search className="w-5 h-5 md:w-6 md:h-6 mr-2 md:mr-3 group-hover:scale-110 transition-transform" />
@@ -89,14 +101,14 @@ const HeroSection = () => {
             {trendingCities.map((city) => (
               <button
                 key={city.id}
-                onClick={() => navigate(`/homestays?search=${city.name}`)}
+                onClick={() => navigate(`/hotels?location=${city.name}`)}
                 className="px-5 py-2 bg-white/5 rounded-full hover:bg-secondary/20 hover:text-white transition-all border border-white/5 hover:border-secondary/50 text-[11px]"
               >
                 {city.name}
               </button>
             ))}
           </div>
-        </div>
+        </motion.div>
       </div>
 
       {/* Scroll Indicator */}

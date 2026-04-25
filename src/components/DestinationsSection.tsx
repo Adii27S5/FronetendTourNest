@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { MapPin, Sparkles, IndianRupee } from "lucide-react";
+import { useState, useRef } from "react";
+import { motion } from "framer-motion";
+import { MapPin, Sparkles, IndianRupee, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useAppContext } from "@/contexts/AppContext";
@@ -101,94 +102,115 @@ const destinations: Destination[] = [
 const DestinationsSection = () => {
   const navigate = useNavigate();
   const { t } = useAppContext();
+  
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const handleManualSlide = (direction: 'left' | 'right') => {
+    if (containerRef.current) {
+      const scrollAmount = window.innerWidth * 0.8;
+      containerRef.current.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth'
+      });
+    }
+  };
 
   return (
-    <section className="py-32 px-4 bg-muted/20 relative overflow-hidden">
-      <div className="absolute top-0 right-0 w-[40rem] h-[40rem] bg-secondary/5 rounded-full blur-[100px] -mr-80 -mt-80" />
+    <section className="relative bg-muted/20 py-24 overflow-hidden">
+      <div className="absolute top-0 right-0 w-[40rem] h-[40rem] bg-secondary/5 rounded-full blur-3xl -mr-80 -mt-80 pointer-events-none" />
 
-      <div className="container mx-auto relative z-10">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-secondary" />
-              <span className="text-secondary font-black tracking-widest uppercase text-xs">{t("topRatedLocations")}</span>
+      <div className="container mx-auto relative z-10 shrink-0 mb-12 px-4">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-secondary" />
+                <span className="text-secondary font-black tracking-widest uppercase text-xs">{t("topRatedLocations")}</span>
+              </div>
+              <h2 className="text-5xl md:text-7xl font-display font-black tracking-tighter text-foreground leading-[0.8]">
+                {t("gemsOfIndia").split(" ")[0]} {t("gemsOfIndia").split(" ")[1]} <span className="text-secondary italic">{t("gemsOfIndia").split(" ")[2] || "India"}</span>
+              </h2>
+              <p className="text-xl text-muted-foreground font-medium max-w-xl">
+                {t("experienceSubtitle")}
+              </p>
             </div>
-            <h2 className="text-4xl md:text-7xl font-display font-black tracking-tighter text-foreground leading-[0.8]">
-              {t("gemsOfIndia").split(" ")[0]} {t("gemsOfIndia").split(" ")[1]} <span className="text-secondary italic">{t("gemsOfIndia").split(" ")[2] || "India"}</span>
-            </h2>
-            <p className="text-xl text-muted-foreground font-medium max-w-xl">
-              {t("experienceSubtitle")}
-            </p>
           </div>
-          <Button
-            onClick={() => navigate("/homestays")}
-            className="h-16 px-10 rounded-2xl border-2 border-secondary/20 hover:border-secondary font-bold transition-all text-secondary"
-          >
-            {t("viewAllStates")}
-          </Button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-          {/* Large Hero Card */}
-          <div className="lg:col-span-2 lg:row-span-2 relative group rounded-[3rem] overflow-hidden shadow-premium h-[400px] md:h-[600px]">
-            <img src={destinations[0].image} className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" alt="" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-            <div className="absolute top-8 left-8 flex gap-2">
-              {destinations[0].tags.map(tag => (
-                <span key={tag} className="bg-white/20 backdrop-blur-md px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest text-white">
-                  {t(tag)}
-                </span>
-              ))}
-            </div>
-            <div className="absolute bottom-10 left-10 p-2 text-white">
-              <div className="flex items-center gap-2 opacity-70 mb-2 font-bold uppercase text-xs tracking-widest">
-                <MapPin className="w-4 h-4" />
-                {destinations[0].state}
-              </div>
-              <h3 className="text-3xl md:text-5xl font-display font-black mb-6">{destinations[0].name}</h3>
-              <p className="text-white/80 max-w-md text-lg font-medium leading-relaxed mb-8">
-                {destinations[0].description}
-              </p>
-              <div className="flex items-center gap-10">
-                <div className="flex flex-col">
-                  <span className="text-sm uppercase tracking-widest opacity-60 font-black">{t("startingFrom")}</span>
-                  <span className="text-3xl font-display font-black text-secondary flex items-center">
-                    <IndianRupee className="w-6 h-6 mr-1" />{destinations[0].startingPrice}
-                  </span>
-                </div>
-                <Button
-                  onClick={() => navigate(`/homestays?search=${destinations[0].name}`)}
-                  size="lg" className="h-14 px-10 rounded-2xl bg-white text-black font-black hover:bg-secondary hover:text-white transition-all shadow-xl"
-                >
-                  Explore {destinations[0].name}
-                </Button>
-              </div>
-            </div>
-          </div>
-
-          {/* Small Cards */}
-          {destinations.slice(1).map((dest) => (
-            <div
+      {/* Native Lag-Free Horizontal Scroll Container */}
+      <div className="relative group/slider">
+        <div 
+          ref={containerRef}
+          className="flex gap-10 overflow-x-auto snap-x snap-mandatory px-4 md:px-20 pb-20 pt-10 scroll-smooth no-scrollbar"
+        >
+          {destinations.map((dest) => (
+            <motion.div
               key={dest.id}
-              onClick={() => navigate(`/homestays?search=${dest.name}`)}
-              className="relative group rounded-[2.5rem] overflow-hidden shadow-soft hover:shadow-premium transition-all h-[280px] cursor-pointer"
+              onClick={() => navigate(`/hotels?location=${dest.name}`)}
+              className="relative group rounded-[3rem] overflow-hidden shadow-premium h-[450px] md:h-[550px] w-[350px] md:w-[500px] cursor-pointer flex-shrink-0 snap-center"
+              whileHover={{ y: -15, scale: 1.02 }}
             >
-              <img src={dest.image} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-              <div className="absolute bottom-6 left-6 right-6">
-                <div className="flex items-center gap-1.5 text-white/70 text-[10px] uppercase font-bold tracking-widest mb-1">
-                  <MapPin className="w-3.5 h-3.5" />
+              <img 
+                src={dest.image} 
+                className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" 
+                alt={dest.name} 
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
+              <div className="absolute top-8 left-8 flex gap-2">
+                {dest.tags.map(tag => (
+                  <span 
+                    key={tag}
+                    className="bg-white/20 backdrop-blur-md px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest text-white"
+                  >
+                    {t(tag)}
+                  </span>
+                ))}
+              </div>
+              <div className="absolute bottom-10 left-10 right-10 p-2 text-white pointer-events-none">
+                <div className="flex items-center gap-2 opacity-70 mb-2 font-bold uppercase text-xs tracking-widest">
+                  <MapPin className="w-4 h-4" />
                   {dest.state}
                 </div>
-                <div className="flex items-center justify-between">
-                  <h4 className="text-2xl font-display font-black text-white">{dest.name}</h4>
-                  <div className="bg-secondary px-3 py-1 rounded-full text-[10px] font-black text-white shadow-glow">
-                    {dest.homestayCount}+ {t("stays").toLowerCase()}
+                <h3 className="text-3xl md:text-5xl font-display font-black mb-4">{dest.name}</h3>
+                <p className="text-white/80 text-sm md:text-base font-medium leading-relaxed mb-6 line-clamp-2">
+                  {dest.description}
+                </p>
+                <div className="flex items-center justify-between pointer-events-auto">
+                  <div className="flex flex-col">
+                    <span className="text-[10px] uppercase tracking-widest opacity-60 font-black">{t("startingFrom")}</span>
+                    <span className="text-2xl md:text-3xl font-display font-black text-secondary flex items-center">
+                      <IndianRupee className="w-5 h-5 md:w-6 md:h-6 mr-1" />{dest.startingPrice}
+                    </span>
                   </div>
+                  <Button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/hotels?location=${dest.name}`);
+                    }}
+                    size="default" className="h-12 px-6 rounded-xl bg-white text-black font-black hover:bg-secondary hover:text-white transition-all shadow-xl"
+                  >
+                    Explore
+                  </Button>
                 </div>
               </div>
-            </div>
+            </motion.div>
           ))}
+        </div>
+
+        {/* Manual Slider Controls (Repositioned to Sides) */}
+        <div className="absolute top-1/2 -translate-y-1/2 left-0 right-0 px-2 md:px-8 flex items-center justify-between z-20 pointer-events-none opacity-0 group-hover/slider:opacity-100 transition-opacity duration-300">
+          <button 
+            onClick={() => handleManualSlide('left')}
+            className="pointer-events-auto w-14 h-14 rounded-full bg-white/80 backdrop-blur-md border border-border flex items-center justify-center text-foreground hover:bg-secondary hover:text-white transition-all shadow-premium"
+          >
+            <ChevronLeft className="w-6 h-6" />
+          </button>
+
+          <button 
+            onClick={() => handleManualSlide('right')}
+            className="pointer-events-auto w-14 h-14 rounded-full bg-white/80 backdrop-blur-md border border-border flex items-center justify-center text-foreground hover:bg-secondary hover:text-white transition-all shadow-premium"
+          >
+            <ChevronRight className="w-6 h-6" />
+          </button>
         </div>
       </div>
     </section>

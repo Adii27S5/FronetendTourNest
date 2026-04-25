@@ -5,9 +5,10 @@ import HotelCard from '@/components/HotelCard';
 import apiClient from '@/config/axios';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Sparkles, Plus, Search, MapPin, Loader2 } from 'lucide-react';
+import { Sparkles, Plus, Search, MapPin, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAppContext } from '@/contexts/AppContext';
+import { motion } from 'framer-motion';
 
 interface Hotel {
   id?: number;
@@ -172,11 +173,17 @@ const Hotels: React.FC = () => {
             </div>
           )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 animate-fade-in delay-200">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10 animate-fade-in delay-200">
             {filteredHotels.map((hotel, index) => (
-              <div key={hotel.id} className="animate-slide-up" style={{ animationDelay: `${index * 100}ms` }}>
+              <motion.div
+                key={hotel.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="h-full"
+              >
                 <HotelCard {...hotel} onDelete={handleDelete} />
-              </div>
+              </motion.div>
             ))}
           </div>
 

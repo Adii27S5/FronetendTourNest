@@ -29,7 +29,8 @@ interface AppContextType {
   updatePreferences: (prefs: Partial<UserPreferences>) => void;
   searchHistory: string[];
   addToSearchHistory: (query: string) => void;
-  theme: 'light' | 'dark';
+  theme: 'light' | 'dark' | 'hybrid';
+  setTheme: (theme: 'light' | 'dark' | 'hybrid') => void;
   toggleTheme: () => void;
   t: (key: keyof typeof translations.en) => string;
 }
@@ -45,7 +46,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   });
   const [favorites, setFavorites] = useState<Favorite[]>([]);
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [theme, setTheme] = useState<'light' | 'dark' | 'hybrid'>('light');
 
   const { user } = useAuth();
   const API_URL = `${API_BASE_URL}/api/favorites`;
@@ -113,7 +114,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   // Persist theme to localStorage and apply to document
   useEffect(() => {
     localStorage.setItem('theme', theme);
-    document.documentElement.classList.toggle('dark', theme === 'dark');
+    document.documentElement.classList.remove('dark', 'hybrid');
+    if (theme !== 'light') {
+        document.documentElement.classList.add(theme);
+    }
   }, [theme]);
 
   // Favorite management functions
@@ -179,7 +183,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const toggleTheme = () => {
     setTheme(prev => {
-        const next = prev === 'light' ? 'dark' : 'light';
+        const next = prev === 'light' ? 'dark' : prev === 'dark' ? 'hybrid' : 'light';
         if (user?.email) {
             apiClient.put(`/api/users/${user.email}`, { theme: next });
         }
@@ -204,6 +208,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         searchHistory,
         addToSearchHistory,
         theme,
+        setTheme: (newTheme) => {
+          setTheme(newTheme);
+          if (user?.email) {
+            apiClient.put(`/api/users/${user.email}`, { theme: newTheme });
+          }
+        },
         toggleTheme,
         t,
       }}
