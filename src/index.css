@@ -250,6 +250,19 @@
     @apply transition-all duration-300 active:scale-95;
   }
 
+  @keyframes auto-scroll-x {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  .animate-auto-scroll-x {
+    animation: auto-scroll-x 40s linear infinite;
+  }
+
+  .animate-auto-scroll-x:hover {
+    animation-play-state: paused;
+  }
+
   .cursor-active {
     @apply scale-90 opacity-60;
   }

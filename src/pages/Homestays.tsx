@@ -139,12 +139,16 @@ const Homestays = () => {
             ))}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 animate-fade-in delay-200">
-            {filteredHomestays.map((stay) => (
-              <Link key={stay.id} to={`/homestay/${stay.id}`} className="hover:scale-[1.02] transition-transform">
-                <HomestayCard {...stay} />
-              </Link>
-            ))}
+          <div className="relative overflow-hidden group py-4 -mx-4 px-4 md:-mx-12 md:px-12">
+            <div className="flex gap-10 min-w-full w-max animate-auto-scroll-x">
+              {[...filteredHomestays, ...filteredHomestays].map((stay, index) => (
+                <div key={`${stay.id}-${index}`} className="w-[300px] md:w-[400px] shrink-0">
+                  <Link to={`/homestay/${stay.id}`} className="block hover:scale-[1.02] transition-transform h-full">
+                    <HomestayCard {...stay} />
+                  </Link>
+                </div>
+              ))}
+            </div>
           </div>
 
           {loading ? (

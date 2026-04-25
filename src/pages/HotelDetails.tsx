@@ -176,22 +176,24 @@ const HotelDetails = () => {
                     <h2 className="text-4xl md:text-5xl font-display font-black tracking-tight">Explore nearby in {hotel.location.split(',')[0]}</h2>
                   </div>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    {hotel.nearbyAttractions && hotel.nearbyAttractions.map((attr: any) => (
-                      <div key={attr.id} onClick={() => navigate(`/attraction/${attr.id}`)} className="group cursor-pointer bg-white dark:bg-card rounded-[2.5rem] overflow-hidden shadow-soft hover:shadow-premium transition-all border border-border/30">
-                        <div className="h-48 overflow-hidden relative">
-                          <img src={resolveImage(attr.image)} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={attr.title} />
-                          <Badge className="absolute top-4 left-4 bg-secondary text-white font-black uppercase tracking-widest text-[8px] border-0">{attr.category}</Badge>
-                        </div>
-                        <div className="p-8 space-y-3">
-                          <h3 className="text-2xl font-display font-black leading-tight group-hover:text-secondary transition-colors line-clamp-1">{attr.title}</h3>
-                          <div className="flex items-center gap-6 text-muted-foreground text-[10px] font-bold uppercase tracking-widest">
-                            <div className="flex items-center gap-2"><Clock className="w-4 h-4 text-secondary" /> {attr.duration}</div>
-                            <div className="flex items-center gap-2"><StarIcon className="w-4 h-4 fill-gold text-gold border-0" /> {attr.rating}</div>
+                  <div className="relative overflow-hidden group py-4 -mx-4 px-4 md:-mx-8 md:px-8">
+                    <div className="flex gap-8 min-w-full w-max animate-auto-scroll-x">
+                      {hotel.nearbyAttractions && [...hotel.nearbyAttractions, ...hotel.nearbyAttractions].map((attr: any, index) => (
+                        <div key={`${attr.id}-${index}`} onClick={() => navigate(`/attraction/${attr.id}`)} className="w-[300px] shrink-0 group cursor-pointer bg-white dark:bg-card rounded-[2.5rem] overflow-hidden shadow-soft hover:shadow-premium transition-all border border-border/30">
+                          <div className="h-48 overflow-hidden relative">
+                            <img src={resolveImage(attr.image)} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={attr.title} />
+                            <Badge className="absolute top-4 left-4 bg-secondary text-white font-black uppercase tracking-widest text-[8px] border-0">{attr.category}</Badge>
+                          </div>
+                          <div className="p-8 space-y-3">
+                            <h3 className="text-2xl font-display font-black leading-tight group-hover:text-secondary transition-colors line-clamp-1">{attr.title}</h3>
+                            <div className="flex items-center gap-6 text-muted-foreground text-[10px] font-bold uppercase tracking-widest">
+                              <div className="flex items-center gap-2"><Clock className="w-4 h-4 text-secondary" /> {attr.duration}</div>
+                              <div className="flex items-center gap-2"><StarIcon className="w-4 h-4 fill-gold text-gold border-0" /> {attr.rating}</div>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
                 </div>
 
@@ -203,19 +205,21 @@ const HotelDetails = () => {
                        </div>
                        <h3 className="text-3xl font-display font-black">{t("culinaryExperiences")}</h3>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {hotel.nearbyFoods.map((food: any) => (
-                        <div key={food.id} className="flex items-center gap-6 p-6 bg-muted/20 rounded-[2.5rem] border border-border/30 hover:bg-white hover:shadow-premium transition-all cursor-default">
-                          <div className="w-24 h-24 rounded-2xl overflow-hidden shrink-0 shadow-lg">
-                            <img src={resolveImage(food.image)} className="w-full h-full object-cover" alt={food.title} />
+                    <div className="relative overflow-hidden group py-4 -mx-4 px-4 md:-mx-8 md:px-8">
+                      <div className="flex gap-6 min-w-full w-max animate-auto-scroll-x">
+                        {[...hotel.nearbyFoods, ...hotel.nearbyFoods].map((food: any, index) => (
+                          <div key={`${food.id}-${index}`} className="w-[300px] shrink-0 flex items-center gap-6 p-6 bg-muted/20 rounded-[2.5rem] border border-border/30 hover:bg-white hover:shadow-premium transition-all cursor-default">
+                            <div className="w-24 h-24 rounded-2xl overflow-hidden shrink-0 shadow-lg">
+                              <img src={resolveImage(food.image)} className="w-full h-full object-cover" alt={food.title} />
+                            </div>
+                            <div className="space-y-1">
+                              <h4 className="text-xl font-display font-black line-clamp-1">{food.title}</h4>
+                              <p className="text-xs text-muted-foreground italic line-clamp-1">"{food.description}"</p>
+                              <p className="text-sm font-black text-secondary pt-2">₹{food.price}</p>
+                            </div>
                           </div>
-                          <div className="space-y-1">
-                            <h4 className="text-xl font-display font-black">{food.title}</h4>
-                            <p className="text-xs text-muted-foreground italic">"{food.description}"</p>
-                            <p className="text-sm font-black text-secondary pt-2">₹{food.price}</p>
-                          </div>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
                   </div>
                 )}

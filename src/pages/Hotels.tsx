@@ -173,20 +173,22 @@ const Hotels: React.FC = () => {
             </div>
           )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10 animate-fade-in delay-200">
-            {filteredHotels.map((hotel, index) => (
-              <motion.div
-                key={hotel.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="h-full"
-              >
-                <Link to={`/hotel/${hotel.id}`}>
-                  <HotelCard {...hotel} onDelete={handleDelete} />
-                </Link>
-              </motion.div>
-            ))}
+          <div className="relative overflow-hidden group py-4 -mx-4 px-4 md:-mx-12 md:px-12 animate-fade-in delay-200">
+            <div className="flex gap-10 min-w-full w-max animate-auto-scroll-x">
+              {[...filteredHotels, ...filteredHotels].map((hotel, index) => (
+                <motion.div
+                  key={`${hotel.id}-${index}`}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: (index % filteredHotels.length) * 0.1 }}
+                  className="w-[300px] md:w-[400px] shrink-0 h-full"
+                >
+                  <Link to={`/hotel/${hotel.id}`} className="block h-full">
+                    <HotelCard {...hotel} onDelete={handleDelete} />
+                  </Link>
+                </motion.div>
+              ))}
+            </div>
           </div>
 
           {loading ? (

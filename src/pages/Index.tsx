@@ -81,12 +81,16 @@ const Index = () => {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {featuredStays.map((stay) => (
-              <Link key={stay.id} to={`/homestay/${stay.id}`} className="hover:-translate-y-1 transition-transform duration-200">
-                <HomestayCard {...stay} />
-              </Link>
-            ))}
+          <div className="relative overflow-hidden group py-4 -mx-4 px-4 md:-mx-12 md:px-12">
+            <div className="flex gap-8 min-w-full w-max animate-auto-scroll-x">
+              {[...featuredStays, ...featuredStays].map((stay, index) => (
+                <div key={`${stay.id}-${index}`} className="w-[300px] md:w-[400px] shrink-0">
+                  <Link to={`/homestay/${stay.id}`} className="block hover:-translate-y-1 transition-transform duration-200 h-full">
+                    <HomestayCard {...stay} />
+                  </Link>
+                </div>
+              ))}
+            </div>
           </div>
 
           <div className="mt-14 text-center">
@@ -113,12 +117,16 @@ const Index = () => {
             </h2>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {featuredHotels.map((hotel) => (
-              <Link key={hotel.id} to={`/hotel/${hotel.id}`} className="hover:-translate-y-1 transition-transform duration-200">
-                <HotelCard {...hotel} />
-              </Link>
-            ))}
+          <div className="relative overflow-hidden group py-4 -mx-4 px-4 md:-mx-12 md:px-12">
+            <div className="flex gap-8 min-w-full w-max animate-auto-scroll-x">
+              {[...featuredHotels, ...featuredHotels].map((hotel, index) => (
+                <div key={`${hotel.id}-${index}`} className="w-[300px] md:w-[400px] shrink-0 h-full">
+                  <Link to={`/hotel/${hotel.id}`} className="block hover:-translate-y-1 transition-transform duration-200 h-full">
+                    <HotelCard {...hotel} />
+                  </Link>
+                </div>
+              ))}
+            </div>
           </div>
 
           <div className="mt-14 text-center">

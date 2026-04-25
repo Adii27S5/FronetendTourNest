@@ -134,110 +134,118 @@ const TouristDashboard = () => {
                     </div>
 
                     {activeTab === "bookings" ? (
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                            {bookings.map((booking) => (
-                                <Card key={booking.id} className="group overflow-hidden rounded-[3rem] border-border/50 shadow-soft hover:shadow-premium transition-all duration-500">
-                                    <CardContent className="p-0 flex flex-col sm:flex-row h-full">
-                                        <div className="w-full sm:w-1/2 h-64 sm:h-auto overflow-hidden relative">
-                                            <img src={resolveImage(booking.image || "munnar-tea.jpg")} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="" />
-                                            <div className="absolute top-6 left-6 bg-nature/90 backdrop-blur-md px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest text-white">
-                                                {booking.status}
-                                            </div>
-                                        </div>
-                                        <div className="p-10 flex-1 flex flex-col">
-                                            <div className="flex items-center gap-2 text-secondary font-bold text-[10px] uppercase tracking-widest mb-3">
-                                                <MapPin className="w-3.5 h-3.5" />
-                                                {booking.location || "India"}
-                                            </div>
-                                            <h3 className="text-3xl font-display font-black mb-4">{booking.title || booking.entity}</h3>
-                                            <div className="space-y-3 mb-8">
-                                                <div className="flex items-center gap-3 text-sm font-bold text-muted-foreground">
-                                                    <Calendar className="w-4 h-4 text-secondary" />
-                                                    {booking.date}
+                        <div className="relative overflow-hidden group py-4 -mx-4 px-4 md:-mx-12 md:px-12">
+                            <div className="flex gap-8 min-w-full w-max animate-auto-scroll-x">
+                                {[...bookings, ...bookings].map((booking, index) => (
+                                    <div key={`${booking.id}-${index}`} className="w-[350px] lg:w-[600px] shrink-0">
+                                        <Card className="group overflow-hidden rounded-[3rem] border-border/50 shadow-soft hover:shadow-premium transition-all duration-500 h-full">
+                                            <CardContent className="p-0 flex flex-col sm:flex-row h-full">
+                                                <div className="w-full sm:w-1/2 h-64 sm:h-auto overflow-hidden relative">
+                                                    <img src={resolveImage(booking.image || "munnar-tea.jpg")} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="" />
+                                                    <div className="absolute top-6 left-6 bg-nature/90 backdrop-blur-md px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest text-white">
+                                                        {booking.status}
+                                                    </div>
                                                 </div>
-                                                <div className="flex items-center gap-3 text-sm font-bold text-muted-foreground">
-                                                    <Clock className="w-4 h-4 text-secondary" />
-                                                    {booking.time ? booking.time : '—'}
+                                                <div className="p-10 flex-1 flex flex-col">
+                                                    <div className="flex items-center gap-2 text-secondary font-bold text-[10px] uppercase tracking-widest mb-3">
+                                                        <MapPin className="w-3.5 h-3.5" />
+                                                        {booking.location || "India"}
+                                                    </div>
+                                                    <h3 className="text-3xl font-display font-black mb-4 line-clamp-1">{booking.title || booking.entity}</h3>
+                                                    <div className="space-y-3 mb-8">
+                                                        <div className="flex items-center gap-3 text-sm font-bold text-muted-foreground">
+                                                            <Calendar className="w-4 h-4 text-secondary" />
+                                                            {booking.date}
+                                                        </div>
+                                                        <div className="flex items-center gap-3 text-sm font-bold text-muted-foreground">
+                                                            <Clock className="w-4 h-4 text-secondary" />
+                                                            {booking.time ? booking.time : '—'}
+                                                        </div>
+                                                        <div className="flex items-center gap-3 text-sm font-bold text-muted-foreground">
+                                                            <User className="w-4 h-4 text-secondary" />
+                                                            {t('hostLabel')}: {booking.host?.split('@')[0] || "Local Expert"}
+                                                        </div>
+                                                    </div>
+                                                    <div className="mt-auto pt-6 border-t border-border/50 flex gap-4">
+                                                        <Button
+                                                            variant="outline"
+                                                            onClick={() => {
+                                                                const start = booking.startISO ? new Date(booking.startISO) : null;
+                                                                if (!start) {
+                                                                    toast({
+                                                                        title: "Error",
+                                                                        description: "Unable to determine booking start time.",
+                                                                        variant: "destructive"
+                                                                    });
+                                                                    return;
+                                                                }
+                                                                const msRemaining = start.getTime() - Date.now();
+                                                                const twelveHoursMs = 12 * 60 * 60 * 1000;
+                                                                if (msRemaining <= twelveHoursMs) {
+                                                                    toast({
+                                                                        title: "Edit Disabled",
+                                                                        description: "Edits are disabled within 12 hours of the booking start.",
+                                                                        variant: "destructive"
+                                                                    });
+                                                                    return;
+                                                                }
+                                                                setEditingBooking(booking);
+                                                                setEditedTime(booking.time || (booking.startISO ? booking.startISO.slice(11, 16) : '12:00'));
+                                                                setShowEditModal(true);
+                                                            }}
+                                                            className="flex-1 rounded-2xl h-14 font-black text-xs uppercase tracking-widest border-2 hover:bg-secondary hover:border-secondary hover:text-white transition-all shadow-soft"
+                                                        >
+                                                            {t('editBooking')}
+                                                        </Button>
+                                                        <Link to={`/homestay/${booking.homestayId || String(booking.id).replace('b', '')}`} className="flex-1">
+                                                            <Button className="w-full h-14 rounded-2xl font-black text-xs uppercase tracking-widest bg-secondary text-white shadow-glow hover:scale-105 transition-transform">
+                                                                {t('viewStay')}
+                                                            </Button>
+                                                        </Link>
+                                                    </div>
                                                 </div>
-                                                <div className="flex items-center gap-3 text-sm font-bold text-muted-foreground">
-                                                    <User className="w-4 h-4 text-secondary" />
-                                                    {t('hostLabel')}: {booking.host?.split('@')[0] || "Local Expert"}
-                                                </div>
-                                            </div>
-                                            <div className="mt-auto pt-6 border-t border-border/50 flex gap-4">
-                                                <Button
-                                                    variant="outline"
-                                                    onClick={() => {
-                                                        const start = booking.startISO ? new Date(booking.startISO) : null;
-                                                        if (!start) {
-                                                            toast({
-                                                                title: "Error",
-                                                                description: "Unable to determine booking start time.",
-                                                                variant: "destructive"
-                                                            });
-                                                            return;
-                                                        }
-                                                        const msRemaining = start.getTime() - Date.now();
-                                                        const twelveHoursMs = 12 * 60 * 60 * 1000;
-                                                        if (msRemaining <= twelveHoursMs) {
-                                                            toast({
-                                                                title: "Edit Disabled",
-                                                                description: "Edits are disabled within 12 hours of the booking start.",
-                                                                variant: "destructive"
-                                                            });
-                                                            return;
-                                                        }
-                                                        setEditingBooking(booking);
-                                                        setEditedTime(booking.time || (booking.startISO ? booking.startISO.slice(11, 16) : '12:00'));
-                                                        setShowEditModal(true);
-                                                    }}
-                                                    className="flex-1 rounded-2xl h-14 font-black text-xs uppercase tracking-widest border-2 hover:bg-secondary hover:border-secondary hover:text-white transition-all shadow-soft"
-                                                >
-                                                    {t('editBooking')}
-                                                </Button>
-                                                <Link to={`/homestay/${booking.homestayId || String(booking.id).replace('b', '')}`} className="flex-1">
-                                                    <Button className="w-full h-14 rounded-2xl font-black text-xs uppercase tracking-widest bg-secondary text-white shadow-glow hover:scale-105 transition-transform">
-                                                        {t('viewStay')}
-                                                    </Button>
-                                                </Link>
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            ))}
+                                            </CardContent>
+                                        </Card>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                            {favorites.map((fav) => (
-                                <Card key={fav.id} className="group overflow-hidden rounded-[3rem] border-border/50 shadow-soft hover:shadow-premium transition-all">
-                                    <CardContent className="p-0">
-                                        <div className="h-64 overflow-hidden relative">
-                                            <img src={resolveImage(fav.image)} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="" />
-                                            <button className="absolute top-6 right-6 p-3 bg-white/20 backdrop-blur-md border border-white/30 rounded-2xl text-white">
-                                                <Heart className="w-5 h-5 fill-red-500 text-red-500" />
-                                            </button>
-                                        </div>
-                                        <div className="p-8">
-                                            <div className="flex items-center gap-2 text-secondary font-bold text-[10px] uppercase tracking-widest mb-2">
-                                                {fav.location}
-                                            </div>
-                                            <div className="flex justify-between items-center mb-6">
-                                                <h3 className="text-2xl font-display font-black">{fav.title}</h3>
-                                                <div className="flex items-center gap-1 font-black text-secondary">
-                                                    <Star className="w-4 h-4 fill-current" />
-                                                    {fav.rating}
+                        <div className="relative overflow-hidden group py-4 -mx-4 px-4 md:-mx-12 md:px-12">
+                            <div className="flex gap-8 min-w-full w-max animate-auto-scroll-x">
+                                {[...favorites, ...favorites].map((fav, index) => (
+                                    <div key={`${fav.id}-${index}`} className="w-[300px] md:w-[400px] shrink-0">
+                                        <Card className="group overflow-hidden rounded-[3rem] border-border/50 shadow-soft hover:shadow-premium transition-all h-full">
+                                            <CardContent className="p-0">
+                                                <div className="h-64 overflow-hidden relative">
+                                                    <img src={resolveImage(fav.image)} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="" />
+                                                    <button className="absolute top-6 right-6 p-3 bg-white/20 backdrop-blur-md border border-white/30 rounded-2xl text-white">
+                                                        <Heart className="w-5 h-5 fill-red-500 text-red-500" />
+                                                    </button>
                                                 </div>
-                                            </div>
-                                            <Link to={`/homestay/${fav.id}`}>
-                                                <Button className="w-full h-14 rounded-2xl font-black text-xs uppercase tracking-widest bg-secondary text-white shadow-glow group">
-                                                    {t('bookNow')}
-                                                    <ArrowRight className="w-4 h-4 ml-3 group-hover:translate-x-2 transition-transform" />
-                                                </Button>
-                                            </Link>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            ))}
+                                                <div className="p-8">
+                                                    <div className="flex items-center gap-2 text-secondary font-bold text-[10px] uppercase tracking-widest mb-2">
+                                                        {fav.location}
+                                                    </div>
+                                                    <div className="flex justify-between items-center mb-6">
+                                                        <h3 className="text-2xl font-display font-black line-clamp-1">{fav.title}</h3>
+                                                        <div className="flex items-center gap-1 font-black text-secondary">
+                                                            <Star className="w-4 h-4 fill-current" />
+                                                            {fav.rating}
+                                                        </div>
+                                                    </div>
+                                                    <Link to={`/homestay/${fav.id}`}>
+                                                        <Button className="w-full h-14 rounded-2xl font-black text-xs uppercase tracking-widest bg-secondary text-white shadow-glow group">
+                                                            {t('bookNow')}
+                                                            <ArrowRight className="w-4 h-4 ml-3 group-hover:translate-x-2 transition-transform" />
+                                                        </Button>
+                                                    </Link>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     )}
 

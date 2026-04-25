@@ -213,31 +213,33 @@ const AttractionDetails = () => {
                                     <h2 className="text-4xl md:text-5xl font-display font-black tracking-tight">{t("culinaryExperiences")}</h2>
                                 </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    {foods.map((food) => (
-                                        <div key={food.id} className="group relative flex items-center gap-6 p-6 bg-white dark:bg-card rounded-[2.5rem] shadow-soft hover:shadow-premium transition-all">
-                                            <div className="w-32 h-32 rounded-3xl overflow-hidden shrink-0 shadow-lg group-hover:scale-105 transition-transform">
-                                                <img 
-                                                    src={resolveImage(food.image)} 
-                                                    className="w-full h-full object-cover"
-                                                    alt={food.title}
-                                                />
-                                            </div>
-                                            <div className="space-y-1">
-                                                <Badge variant="outline" className="text-[8px] font-black uppercase tracking-tighter mb-1 border-secondary/20 text-secondary">
-                                                    {food.category}
-                                                </Badge>
-                                                <h3 className="text-xl font-display font-black leading-tight">{food.title}</h3>
-                                                <p className="text-xs text-muted-foreground line-clamp-2 italic font-medium">"{food.description}"</p>
-                                                <div className="flex items-center gap-3 pt-2">
-                                                     <span className="text-sm font-black text-secondary">₹{food.price}</span>
-                                                     <span className="text-[10px] font-bold text-gold flex items-center gap-1">
-                                                          <StarIcon className="w-3 h-3 fill-gold" /> {food.rating}
-                                                     </span>
+                                <div className="relative overflow-hidden group py-4 -mx-4 px-4 md:-mx-8 md:px-8">
+                                    <div className="flex gap-6 min-w-full w-max animate-auto-scroll-x">
+                                        {[...foods, ...foods].map((food, index) => (
+                                            <div key={`${food.id}-${index}`} className="w-[300px] md:w-[400px] shrink-0 group relative flex items-center gap-6 p-6 bg-white dark:bg-card rounded-[2.5rem] shadow-soft hover:shadow-premium transition-all h-full">
+                                                <div className="w-32 h-32 rounded-3xl overflow-hidden shrink-0 shadow-lg group-hover:scale-105 transition-transform">
+                                                    <img 
+                                                        src={resolveImage(food.image)} 
+                                                        className="w-full h-full object-cover"
+                                                        alt={food.title}
+                                                    />
+                                                </div>
+                                                <div className="space-y-1">
+                                                    <Badge variant="outline" className="text-[8px] font-black uppercase tracking-tighter mb-1 border-secondary/20 text-secondary">
+                                                        {food.category}
+                                                    </Badge>
+                                                    <h3 className="text-xl font-display font-black leading-tight line-clamp-1">{food.title}</h3>
+                                                    <p className="text-xs text-muted-foreground line-clamp-2 italic font-medium">"{food.description}"</p>
+                                                    <div className="flex items-center gap-3 pt-2">
+                                                         <span className="text-sm font-black text-secondary">₹{food.price}</span>
+                                                         <span className="text-[10px] font-bold text-gold flex items-center gap-1">
+                                                              <StarIcon className="w-3 h-3 fill-gold" /> {food.rating}
+                                                         </span>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    ))}
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
                         )}
@@ -260,50 +262,53 @@ const AttractionDetails = () => {
                                 </Button>
                             </div>
 
-                            <div className="grid md:grid-cols-2 gap-8">
-                                {nearbyAccommodations.length > 0 ? nearbyAccommodations.map((stay) => (
-                                    <Card key={stay.id} className="group rounded-[2.5rem] border-0 shadow-soft hover:shadow-premium transition-all overflow-hidden flex flex-col">
-                                        <div className="h-48 overflow-hidden relative">
-                                            <img src={resolveImage(stay.image)} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={stay.title} />
-                                            <div className={`absolute top-4 right-4 backdrop-blur-md px-4 py-1.5 rounded-full text-[10px] font-black text-white ${stay.type === 'Premium Hotel' ? 'bg-secondary/80' : 'bg-nature/80'}`}>
-                                                {stay.type}
-                                            </div>
-                                        </div>
-                                        <CardContent className="p-8 flex-1 flex flex-col">
-                                            <h3 className="text-2xl font-display font-black mb-2 line-clamp-1">{stay.title}</h3>
-                                            <p className="text-muted-foreground text-xs font-bold mb-4 flex items-center gap-1">
-                                                <MapPin className="w-3 h-3" /> {stay.location}
-                                            </p>
-                                            <div className="mt-auto pt-6 border-t border-border/50 flex justify-between items-center">
-                                                <span className="text-xl font-display font-black text-secondary">
-                                                    ₹{stay.price} <span className="text-[10px] text-muted-foreground uppercase">{t("perNight")}</span>
-                                                </span>
-                                                {stay.hotelCapacityLimit && (
-                                                    <div className="flex flex-col items-end">
-                                                        <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Capacity</span>
-                                                        <span className="text-xs font-bold text-secondary">
-                                                            {stay.hotelCapacityLimit} {t("guestsCount")}
-                                                        </span>
+                            <div className="relative overflow-hidden group py-4 -mx-4 px-4 md:-mx-8 md:px-8">
+                                <div className="flex gap-8 min-w-full w-max animate-auto-scroll-x">
+                                    {nearbyAccommodations.length > 0 ? [...nearbyAccommodations, ...nearbyAccommodations].map((stay, index) => (
+                                        <div key={`${stay.id}-${index}`} className="w-[300px] shrink-0 h-full">
+                                            <Card className="group rounded-[2.5rem] border-0 shadow-soft hover:shadow-premium transition-all overflow-hidden flex flex-col h-full">
+                                                <div className="h-48 overflow-hidden relative">
+                                                    <img src={resolveImage(stay.image)} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={stay.title} />
+                                                    <div className={`absolute top-4 right-4 backdrop-blur-md px-4 py-1.5 rounded-full text-[10px] font-black text-white ${stay.type === 'Premium Hotel' ? 'bg-secondary/80' : 'bg-nature/80'}`}>
+                                                        {stay.type}
                                                     </div>
-                                                )}
-                                                <Button 
-                                                    size="sm" 
-                                                    onClick={() => navigate(stay.type === 'Premium Hotel' ? `/hotel/${stay.id}` : `/homestay/${stay.id}`)}
-                                                    className="rounded-xl bg-muted/50 text-foreground font-black text-[10px] uppercase tracking-widest hover:bg-secondary hover:text-white"
-                                                >
-                                                    {t("bookNow")}
-                                                </Button>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                )) : (
-                                    <div className="col-span-2 py-20 bg-muted/20 rounded-[3rem] border-2 border-dashed border-border flex flex-col items-center justify-center text-center">
-                                         <MapPin className="w-12 h-12 text-muted-foreground opacity-20 mb-4" />
-                                         <p className="text-muted-foreground font-bold italic">{t("findingNearbyStays")}</p>
-                                    </div>
-                                )}
+                                                </div>
+                                                <CardContent className="p-8 flex-1 flex flex-col">
+                                                    <h3 className="text-2xl font-display font-black mb-2 line-clamp-1">{stay.title}</h3>
+                                                    <p className="text-muted-foreground text-xs font-bold mb-4 flex items-center gap-1">
+                                                        <MapPin className="w-3 h-3" /> {stay.location}
+                                                    </p>
+                                                    <div className="mt-auto pt-6 border-t border-border/50 flex justify-between items-center">
+                                                        <span className="text-xl font-display font-black text-secondary">
+                                                            ₹{stay.price} <span className="text-[10px] text-muted-foreground uppercase">{t("perNight")}</span>
+                                                        </span>
+                                                        {stay.hotelCapacityLimit && (
+                                                            <div className="flex flex-col items-end">
+                                                                <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Capacity</span>
+                                                                <span className="text-xs font-bold text-secondary">
+                                                                    {stay.hotelCapacityLimit} {t("guestsCount")}
+                                                                </span>
+                                                            </div>
+                                                        )}
+                                                        <Button 
+                                                            size="sm" 
+                                                            onClick={() => navigate(stay.type === 'Premium Hotel' ? `/hotel/${stay.id}` : `/homestay/${stay.id}`)}
+                                                            className="rounded-xl bg-muted/50 text-foreground font-black text-[10px] uppercase tracking-widest hover:bg-secondary hover:text-white"
+                                                        >
+                                                            {t("bookNow")}
+                                                        </Button>
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+                                        </div>
+                                    )) : (
+                                        <div className="col-span-2 py-20 bg-muted/20 rounded-[3rem] border-2 border-dashed border-border flex flex-col items-center justify-center text-center w-[80vw]">
+                                            <MapPin className="w-12 h-12 text-muted-foreground opacity-20 mb-4" />
+                                            <p className="text-muted-foreground font-bold italic">{t("findingNearbyStays")}</p>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
-                        </div>
                     </div>
 
                     {/* Right Column: Review Section */}

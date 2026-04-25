@@ -125,10 +125,14 @@ const Attractions = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10 animate-fade-in delay-200">
-            {filteredAttractions.map((attraction) => (
-              <AttractionCard key={attraction.id} {...attraction} />
-            ))}
+          <div className="relative overflow-hidden group py-4 -mx-4 px-4 md:-mx-12 md:px-12 animate-fade-in delay-200">
+            <div className="flex gap-10 min-w-full w-max animate-auto-scroll-x">
+              {[...filteredAttractions, ...filteredAttractions].map((attraction, index) => (
+                <div key={`${attraction.id}-${index}`} className="w-[300px] md:w-[400px] shrink-0 h-full">
+                  <AttractionCard {...attraction} />
+                </div>
+              ))}
+            </div>
           </div>
 
           {filteredAttractions.length === 0 && (

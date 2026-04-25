@@ -233,27 +233,29 @@ const HomestayDetails = () => {
                   <h2 className="text-4xl font-display font-black tracking-tight">{t("exploreNearby")}</h2>
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  {/* Dynamic discovery logic to be added in the fetchData call */}
-                  {homestay.nearbyAttractions && homestay.nearbyAttractions.map((attr: any) => (
-                    <div 
-                      key={attr.id} 
-                      onClick={() => navigate(`/attraction/${attr.id}`)}
-                      className="group cursor-pointer bg-white dark:bg-card rounded-[2.5rem] overflow-hidden shadow-soft hover:shadow-premium transition-all border border-border/30"
-                    >
-                      <div className="h-48 overflow-hidden relative">
-                        <img src={resolveImage(attr.image)} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt={attr.title} />
-                        <Badge className="absolute top-4 left-4 bg-secondary text-white font-black uppercase tracking-widest text-[8px] border-0">{attr.category}</Badge>
-                      </div>
-                      <div className="p-6 space-y-2">
-                        <h3 className="text-xl font-display font-black leading-tight group-hover:text-secondary transition-colors line-clamp-1">{attr.title}</h3>
-                        <div className="flex items-center gap-4 text-muted-foreground text-[10px] font-bold uppercase tracking-widest">
-                          <div className="flex items-center gap-1"><Clock className="w-3 h-3" /> {attr.duration}</div>
-                          <div className="flex items-center gap-1"><StarIcon className="w-3 h-3 fill-gold text-gold border-0" /> {attr.rating}</div>
+                <div className="relative overflow-hidden group py-4 -mx-4 px-4 md:-mx-8 md:px-8">
+                  <div className="flex gap-8 min-w-full w-max animate-auto-scroll-x">
+                    {/* Dynamic discovery logic to be added in the fetchData call */}
+                    {homestay.nearbyAttractions && [...homestay.nearbyAttractions, ...homestay.nearbyAttractions].map((attr: any, index) => (
+                      <div 
+                        key={`${attr.id}-${index}`} 
+                        onClick={() => navigate(`/attraction/${attr.id}`)}
+                        className="w-[300px] shrink-0 group cursor-pointer bg-white dark:bg-card rounded-[2.5rem] overflow-hidden shadow-soft hover:shadow-premium transition-all border border-border/30 h-full"
+                      >
+                        <div className="h-48 overflow-hidden relative">
+                          <img src={resolveImage(attr.image)} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt={attr.title} />
+                          <Badge className="absolute top-4 left-4 bg-secondary text-white font-black uppercase tracking-widest text-[8px] border-0">{attr.category}</Badge>
+                        </div>
+                        <div className="p-6 space-y-2">
+                          <h3 className="text-xl font-display font-black leading-tight group-hover:text-secondary transition-colors line-clamp-1">{attr.title}</h3>
+                          <div className="flex items-center gap-4 text-muted-foreground text-[10px] font-bold uppercase tracking-widest">
+                            <div className="flex items-center gap-1"><Clock className="w-3 h-3" /> {attr.duration}</div>
+                            <div className="flex items-center gap-1"><StarIcon className="w-3 h-3 fill-gold text-gold border-0" /> {attr.rating}</div>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>

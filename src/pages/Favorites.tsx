@@ -62,12 +62,16 @@ const Favorites = () => {
                   <h2 className="text-4xl font-display font-black mb-10 tracking-tight border-l-8 border-secondary pl-6">
                     {t("favoriteHomestays")} ({homestayFavorites.length})
                   </h2>
-                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
-                    {homestayFavorites.map((fav) => (
-                      <Link key={fav.id} to={`/homestay/${fav.itemId || fav.details?.id || fav.data?.id}`} className="hover:scale-[1.02] transition-all">
-                        <HomestayCard {...(fav.details || fav.data)} />
-                      </Link>
-                    ))}
+                  <div className="relative overflow-hidden group py-4 -mx-4 px-4 md:-mx-12 md:px-12">
+                    <div className="flex gap-10 min-w-full w-max animate-auto-scroll-x">
+                      {[...homestayFavorites, ...homestayFavorites].map((fav, index) => (
+                        <div key={`${fav.id}-${index}`} className="w-[300px] md:w-[400px] shrink-0">
+                          <Link to={`/homestay/${fav.itemId || fav.details?.id || fav.data?.id}`} className="block hover:scale-[1.02] transition-all h-full">
+                            <HomestayCard {...(fav.details || fav.data)} />
+                          </Link>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </section>
               )}
@@ -78,12 +82,14 @@ const Favorites = () => {
                   <h2 className="text-4xl font-display font-black mb-10 tracking-tight border-l-8 border-nature pl-6">
                     {t("favoriteAttractions")} ({attractionFavorites.length})
                   </h2>
-                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
-                    {attractionFavorites.map((fav) => (
-                      <div key={fav.id} className="hover:scale-[1.02] transition-all cursor-pointer">
-                        <AttractionCard {...(fav.details || fav.data)} />
-                      </div>
-                    ))}
+                  <div className="relative overflow-hidden group py-4 -mx-4 px-4 md:-mx-12 md:px-12">
+                    <div className="flex gap-10 min-w-full w-max animate-auto-scroll-x">
+                      {[...attractionFavorites, ...attractionFavorites].map((fav, index) => (
+                        <div key={`${fav.id}-${index}`} className="w-[300px] md:w-[400px] shrink-0 h-full hover:scale-[1.02] transition-all cursor-pointer">
+                          <AttractionCard {...(fav.details || fav.data)} />
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </section>
               )}
@@ -94,12 +100,14 @@ const Favorites = () => {
                   <h2 className="text-4xl font-display font-black mb-10 tracking-tight border-l-8 border-primary pl-6">
                     {t("favoriteHotels")} ({hotelFavorites.length})
                   </h2>
-                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
-                    {hotelFavorites.map((fav) => (
-                      <div key={fav.id} className="hover:scale-[1.02] transition-all cursor-pointer">
-                        <HotelCard {...(fav.details || fav.data)} />
-                      </div>
-                    ))}
+                  <div className="relative overflow-hidden group py-4 -mx-4 px-4 md:-mx-12 md:px-12">
+                    <div className="flex gap-10 min-w-full w-max animate-auto-scroll-x">
+                      {[...hotelFavorites, ...hotelFavorites].map((fav, index) => (
+                        <div key={`${fav.id}-${index}`} className="w-[300px] md:w-[400px] shrink-0 h-full hover:scale-[1.02] transition-all cursor-pointer">
+                          <HotelCard {...(fav.details || fav.data)} />
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </section>
               )}

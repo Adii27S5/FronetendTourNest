@@ -179,19 +179,22 @@ const HotelsDemo: React.FC = () => {
                <p className="text-2xl text-muted-foreground font-black italic">"{t("noHotelsFoundDb")}"</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-              {hotels.map((hotel) => (
-                <HotelCard 
-                  key={hotel.id} 
-                  id={hotel.id}
-                  name={hotel.name}
-                  location={hotel.location}
-                  price={hotel.price}
-                  rating={hotel.rating}
-                  image={hotel.hotelImagePath}
-                  onDelete={handleDelete}
-                />
-              ))}
+            <div className="relative overflow-hidden group py-4 -mx-4 px-4 md:-mx-12 md:px-12">
+              <div className="flex gap-10 min-w-full w-max animate-auto-scroll-x">
+                {[...hotels, ...hotels].map((hotel, index) => (
+                  <div key={`${hotel.id}-${index}`} className="w-[300px] md:w-[400px] shrink-0 h-full">
+                    <HotelCard 
+                      id={hotel.id}
+                      name={hotel.name}
+                      location={hotel.location}
+                      price={hotel.price}
+                      rating={hotel.rating}
+                      image={hotel.hotelImagePath}
+                      onDelete={handleDelete}
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </div>
