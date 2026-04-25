@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
-  Star, MapPin, Clock, Utensils, MessageSquare, 
+  Star as StarIcon, MapPin, Clock, Utensils, MessageSquare, 
   Send, Loader2, IndianRupee, ArrowLeft, Heart, 
   Sparkles, Camera
 } from "lucide-react";
@@ -151,7 +151,7 @@ const AttractionDetails = () => {
                                 {attraction.category}
                             </Badge>
                             <div className="flex items-center gap-2 bg-white/20 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/10 text-white font-black text-xs">
-                                <Star className="w-4 h-4 fill-gold text-gold" />
+                                <StarIcon className="w-4 h-4 fill-gold text-gold" />
                                 {attraction.rating} • {reviews.length} {t("stories")}
                             </div>
                         </div>
@@ -232,7 +232,7 @@ const AttractionDetails = () => {
                                                 <div className="flex items-center gap-3 pt-2">
                                                      <span className="text-sm font-black text-secondary">₹{food.price}</span>
                                                      <span className="text-[10px] font-bold text-gold flex items-center gap-1">
-                                                          <Star className="w-3 h-3 fill-gold" /> {food.rating}
+                                                          <StarIcon className="w-3 h-3 fill-gold" /> {food.rating}
                                                      </span>
                                                 </div>
                                             </div>
@@ -335,7 +335,7 @@ const AttractionDetails = () => {
                                                         </div>
                                                     </div>
                                                     <div className="flex items-center gap-1 font-bold text-xs text-gold">
-                                                        <Star className="w-3 h-3 fill-gold" />
+                                                        <StarIcon className="w-3 h-3 fill-gold" />
                                                         {review.rating}
                                                     </div>
                                                 </div>
@@ -365,7 +365,7 @@ const AttractionDetails = () => {
                                                                     onClick={() => setNewReview({ ...newReview, rating: star })}
                                                                     className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all ${newReview.rating >= star ? 'bg-secondary text-white shadow-glow' : 'bg-muted/30 text-muted-foreground'}`}
                                                                 >
-                                                                    <Star className={`w-5 h-5 ${newReview.rating >= star ? 'fill-current' : ''}`} />
+                                                                    <StarIcon className={`w-5 h-5 ${newReview.rating >= star ? 'fill-current' : ''}`} />
                                                                 </button>
                                                             ))}
                                                         </div>

@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useAppContext } from '@/contexts/AppContext';
 import { useAuth } from '@/hooks/useAuth';
-import { Heart, Star, MapPin, Users, Wifi, ChevronLeft, Calendar, Sparkles, Clock, Utensils, Compass } from 'lucide-react';
+import { Heart, Star as StarIcon, MapPin, Users, Wifi, ChevronLeft, Calendar, Sparkles, Clock, Utensils, Compass } from 'lucide-react';
 import { format, addDays } from 'date-fns';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -144,7 +144,7 @@ const HotelDetails = () => {
                 <h1 className="text-4xl md:text-7xl font-display font-black tracking-tighter leading-none">{hotel.name}</h1>
                 <div className="flex items-center gap-6 pt-4">
                   <div className="flex items-center gap-1.5 bg-secondary/5 px-4 py-2 rounded-2xl font-black text-xl">
-                    <Star className="w-5 h-5 fill-yellow-500 text-yellow-500" />
+                    <StarIcon className="w-5 h-5 fill-yellow-500 text-yellow-500" />
                     {hotel.rating}
                   </div>
                   <Badge variant="outline" className="border-secondary/30 text-secondary px-4 py-2 font-black rounded-xl uppercase tracking-widest text-[10px] bg-secondary/5">Verified Premium Hotel</Badge>
@@ -155,7 +155,7 @@ const HotelDetails = () => {
                 {[
                   { icon: Users, label: `Up to ${hotel.hotelCapacityLimit} guests`, sub: "Max Capacity" },
                   { icon: Wifi, label: "Premium WiFi", sub: "Connected" },
-                  { icon: Star, label: "5-Star Rating", sub: "Quality Guaranteed" },
+                  { icon: StarIcon, label: "5-Star Rating", sub: "Quality Guaranteed" },
                   { icon: Calendar, label: hotel.bestSeason || "Year-round", sub: "Best Time" }
                 ].map((item, i) => (
                   <div key={i} className="p-8 bg-card rounded-[2.5rem] border border-border/50 shadow-soft text-center space-y-3 group hover:shadow-premium transition-all">
@@ -187,7 +187,7 @@ const HotelDetails = () => {
                           <h3 className="text-2xl font-display font-black leading-tight group-hover:text-secondary transition-colors line-clamp-1">{attr.title}</h3>
                           <div className="flex items-center gap-6 text-muted-foreground text-[10px] font-bold uppercase tracking-widest">
                             <div className="flex items-center gap-2"><Clock className="w-4 h-4 text-secondary" /> {attr.duration}</div>
-                            <div className="flex items-center gap-2"><Star className="w-4 h-4 fill-gold text-gold border-0" /> {attr.rating}</div>
+                            <div className="flex items-center gap-2"><StarIcon className="w-4 h-4 fill-gold text-gold border-0" /> {attr.rating}</div>
                           </div>
                         </div>
                       </div>

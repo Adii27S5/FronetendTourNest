@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useAppContext } from '@/contexts/AppContext';
 import { useAuth } from '@/hooks/useAuth';
-import { Heart, Star, MapPin, Users, Wifi, ChevronLeft, Calendar, Sparkles, Clock } from 'lucide-react';
+import { Heart, Star as StarIcon, MapPin, Users, Wifi, ChevronLeft, Calendar, Sparkles, Clock } from 'lucide-react';
 import { format, addDays } from 'date-fns';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -181,7 +181,7 @@ const HomestayDetails = () => {
                   <h1 className="text-4xl md:text-6xl font-display font-black tracking-tighter leading-none">{homestay.title}</h1>
                 <div className="flex items-center gap-6 pt-4">
                   <div className="flex items-center gap-1.5 bg-secondary/5 px-4 py-2 rounded-2xl">
-                    <Star className="w-5 h-5 fill-yellow-500 text-yellow-500" />
+                    <StarIcon className="w-5 h-5 fill-yellow-500 text-yellow-500" />
                     <span className="font-black text-foreground text-xl">{homestay.rating}</span>
                     <span className="text-xs text-muted-foreground opacity-60">/ 5.0</span>
                   </div>
@@ -193,7 +193,7 @@ const HomestayDetails = () => {
                   {[
                     { icon: Users, label: `${homestay.guests ?? 0} / ${homestay.maxCapacity ?? 8} ${t("guests")}`, sub: t("capacityStat") },
                     { icon: MapPin, label: `${homestay.bedrooms ?? 2} ${t("bedrooms")}`, sub: t("luxuryStat") },
-                    { icon: Star, label: `${homestay.bathrooms ?? 1} ${t("bathrooms")}`, sub: t("privateStat") },
+                    { icon: StarIcon, label: `${homestay.bathrooms ?? 1} ${t("bathrooms")}`, sub: t("privateStat") },
                     { icon: Calendar, label: homestay.bestSeason || "Oct - March", sub: "Best Season" }
                   ].map((item, i) => (
                   <div key={i} className="p-8 bg-card rounded-[2rem] border border-border/50 shadow-soft text-center space-y-3 group hover:shadow-premium transition-all">
@@ -249,7 +249,7 @@ const HomestayDetails = () => {
                         <h3 className="text-xl font-display font-black leading-tight group-hover:text-secondary transition-colors line-clamp-1">{attr.title}</h3>
                         <div className="flex items-center gap-4 text-muted-foreground text-[10px] font-bold uppercase tracking-widest">
                           <div className="flex items-center gap-1"><Clock className="w-3 h-3" /> {attr.duration}</div>
-                          <div className="flex items-center gap-1"><Star className="w-3 h-3 fill-gold text-gold border-0" /> {attr.rating}</div>
+                          <div className="flex items-center gap-1"><StarIcon className="w-3 h-3 fill-gold text-gold border-0" /> {attr.rating}</div>
                         </div>
                       </div>
                     </div>
