@@ -21,6 +21,7 @@ interface Destination {
   name: string;
   state: string;
   description: string;
+  homestayCount: number;
   startingPrice: number;
   tags: (keyof typeof translations.en)[];
   searchLocation?: string;
