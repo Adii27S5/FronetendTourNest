@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import apiClient from '@/config/axios';
 import { useToast } from "@/hooks/use-toast";
+import { resolveImage } from '@/lib/image-mapper';
 import { useAppContext } from "@/contexts/AppContext";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -33,6 +34,29 @@ const GuideDashboard = () => {
             console.error("Error fetching experiences:", error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleReviewClick = async (attractionId: number) => {
+        try {
+            const response = await apiClient.get(`/api/reviews/attraction/${attractionId}`);
+            if (response.data && response.data.length > 0) {
+                toast({
+                    title: "Reviews Found",
+                    description: `You have ${response.data.length} reviews for this tour!`,
+                });
+            } else {
+                toast({
+                    title: "No Reviews",
+                    description: "No reviews yet for this experience.",
+                });
+            }
+        } catch (error) {
+            toast({
+                title: "Error",
+                description: "Could not fetch reviews.",
+                variant: "destructive"
+            });
         }
     };
 
@@ -120,19 +144,26 @@ const GuideDashboard = () => {
                             <div className="grid md:grid-cols-2 gap-8">
                                 {experiences.map((exp) => (
                                     <Card key={exp.id} className="group overflow-hidden rounded-[3rem] border-border/50 shadow-soft hover:shadow-premium transition-all border-2 hover:border-secondary/20 bg-white dark:bg-card">
-                                        <CardContent className="p-10">
-                                            <div className="flex justify-between items-start mb-6">
-                                                <div className="w-14 h-14 rounded-2xl bg-secondary/10 flex items-center justify-center text-secondary group-hover:bg-secondary group-hover:text-white transition-all">
-                                                    <Compass className="w-8 h-8" />
-                                                </div>
-                                                <div className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${
-                                                    exp.approved ? 'bg-secondary/10 text-secondary' : 'bg-gold/10 text-gold animate-pulse'
-                                                }`}>
-                                                    {exp.approved ? 'Live' : 'Pending Approval'}
-                                                </div>
+                                        
+                                        <div 
+                                            className="h-48 relative w-full overflow-hidden cursor-pointer"
+                                            onClick={() => navigate(`/attraction/${exp.id}`)}
+                                        >
+                                            <img 
+                                                src={resolveImage(exp.image || 'qutub-minar.png')} 
+                                                alt={exp.title} 
+                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
+                                            />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                                            <div className={`absolute top-4 right-4 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest backdrop-blur-md ${
+                                                exp.approved ? 'bg-secondary/90 text-white shadow-glow' : 'bg-gold/90 text-white animate-pulse'
+                                            }`}>
+                                                {exp.approved ? 'Live' : 'Pending Approval'}
                                             </div>
+                                        </div>
 
-                                            <div className="space-y-4 mb-10">
+                                        <CardContent className="p-8">
+                                            <div className="space-y-4 mb-8">
                                                 <h3 className="text-3xl font-display font-black leading-tight group-hover:text-secondary transition-colors line-clamp-2">{exp.title}</h3>
                                                 <div className="flex items-center gap-2 text-muted-foreground text-sm font-bold">
                                                     <MapPin className="w-4 h-4 text-secondary" />
@@ -158,7 +189,11 @@ const GuideDashboard = () => {
                                                 >
                                                     {t("manageExperience")}
                                                 </Button>
-                                                <Button variant="ghost" className="h-14 w-15 rounded-2xl hover:bg-muted/50">
+                                                <Button 
+                                                    variant="ghost" 
+                                                    className="h-14 w-15 rounded-2xl hover:bg-muted/50"
+                                                    onClick={() => handleReviewClick(exp.id)}
+                                                >
                                                     <MessageSquare className="w-6 h-6 text-muted-foreground" />
                                                 </Button>
                                             </div>
