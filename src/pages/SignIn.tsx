@@ -66,36 +66,34 @@ const SignIn = () => {
       }
 
         if (isLogin) {
-        const { error } = await signIn(email, password);
+        const { data, error } = await signIn(email, password);
         if (error) throw error;
         localStorage.setItem('user_role', selectedRole);
 
-        // Always fetch the real name from backend on login (fixes stale name bug)
-        let userName = email.split('@')[0];
+        // Extract real name and join date from Supabase
+        let userName = data?.user?.user_metadata?.full_name || email.split('@')[0];
+        let joinedDate = data?.user?.created_at ? new Date(data.user.created_at).toLocaleDateString() : new Date().toLocaleDateString();
+
+        // Always fetch the real name from backend, and concurrently force an idempotent sync to fix old wrong data
         try {
+          // Fire and forget idempotent update to backend to ensure data is absolutely correct
+          apiClient.post(`/api/users`, {
+            name: userName,
+            fullName: userName,
+            email: email,
+            role: selectedRole,
+            joined: joinedDate,
+            bookingsCount: 0,
+            status: 'Active'
+          }).catch(console.error);
+
           const backendUser = await apiClient.get(`/api/users/email/${email}`);
           const fetchedName = backendUser.data?.fullName || backendUser.data?.name;
           if (fetchedName && fetchedName !== 'OAUTH_NO_PASSWORD') {
             userName = fetchedName;
           }
         } catch (checkError: any) {
-          if (checkError.response && checkError.response.status === 404) {
-            // User missing in backend — sync them
-            console.log("User missing in backend, syncing...");
-            try {
-              await apiClient.post(`/api/users`, {
-                name: userName,
-                fullName: userName,
-                email: email,
-                role: selectedRole,
-                joined: new Date().toLocaleDateString(),
-                bookingsCount: 0,
-                status: 'Active'
-              });
-            } catch (syncError) {
-              console.error("Failed to sync user:", syncError);
-            }
-          }
+          console.error("Backend fetch error:", checkError);
         }
         localStorage.setItem('user_name', userName);
 
@@ -114,40 +112,40 @@ const SignIn = () => {
         toast.success(`${t("welcome")} ${userName}!`);
         navigate(returnUrl || rolePaths[selectedRole as keyof typeof rolePaths]);
       } else {
-        const { error } = await signUp(email, password, fullName || email.split('@')[0]);
+        const { data: signUpData, error } = await signUp(email, password, fullName || email.split('@')[0]);
+        let userData = signUpData;
+        
         if (error) {
            if (error.message.toLowerCase().includes("already registered") || error.message.toLowerCase().includes("already exists")) {
                 toast.info("Account already registered. Attempting to log you in and synchronize data...");
-                const { error: signInError } = await signIn(email, password);
+                const { data: signInData, error: signInError } = await signIn(email, password);
                 if (signInError) throw signInError;
+                userData = signInData;
            } else {
                throw error;
            }
         }
-        localStorage.setItem('user_role', selectedRole);
-        localStorage.setItem('user_name', fullName || email.split('@')[0]);
+        
+        const userName = userData?.user?.user_metadata?.full_name || fullName || email.split('@')[0];
+        const joinedDate = userData?.user?.created_at ? new Date(userData.user.created_at).toLocaleDateString() : new Date().toLocaleDateString();
 
-        const userName = fullName || email.split('@')[0];
+        localStorage.setItem('user_role', selectedRole);
+        localStorage.setItem('user_name', userName);
+
         // Sync with Spring Boot Backend
         try {
-          // First check if they exist to avoid duplicate errors if they were already registered
-          try {
-            await apiClient.get(`/api/users/email/${email}`);
-            console.log("User already in backend.");
-          } catch (checkError: any) {
-            if (checkError.response && checkError.response.status === 404) {
-               await apiClient.post(`/api/users`, {
-                 name: fullName || email.split('@')[0],
-                 fullName: fullName || email.split('@')[0],
-                 email: email,
-                 password: password,
-                 role: selectedRole,
-                 joined: new Date().toLocaleDateString(),
-                 bookingsCount: 0,
-                 status: 'Active'
-               });
-            }
-          }
+          // Force idempotent update to ensure the correct Supabase data is permanently saved
+          await apiClient.post(`/api/users`, {
+            name: userName,
+            fullName: userName,
+            email: email,
+            password: password,
+            role: selectedRole,
+            joined: joinedDate,
+            bookingsCount: 0,
+            status: 'Active'
+          });
+          console.log("User synced successfully.");
         } catch (backendError) {
           console.error("Failed to sync user to backend:", backendError);
           toast.error("Database sync issue. Profile might not be saved.");
