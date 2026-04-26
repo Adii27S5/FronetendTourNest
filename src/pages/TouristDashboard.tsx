@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import NavigationHeader from "@/components/NavigationHeader";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Search, MapPin, Calendar, Heart, Star, Compass, Sparkles, Clock, ArrowRight, User } from "lucide-react";
+import { Search, MapPin, Calendar, Heart, Star, Compass, Sparkles, Clock, ArrowRight, User, Users, CheckCircle2 } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { API_BASE_URL } from '@/config/api';
@@ -56,7 +56,13 @@ const TouristDashboard = () => {
         };
 
         fetchData();
+        const interval = setInterval(fetchData, 10000); // 10s polling
+        return () => clearInterval(interval);
     }, [userEmail]);
+
+    const totalGuests = bookings.reduce((acc, b) => acc + (b.guestsCount || 0), 0);
+    const approvedJourneys = bookings.filter(b => b.status === 'Approved').length;
+    const pendingJourneys = bookings.filter(b => b.status === 'Pending').length;
 
     const handleSaveEdit = async () => {
         if (!editingBooking) return;
@@ -107,14 +113,46 @@ const TouristDashboard = () => {
                     <div className="flex flex-col md:flex-row items-start md:items-end justify-between mb-12 gap-8">
                         <div className="space-y-4">
                             <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-secondary/5 rounded-full">
-                                <Sparkles className="w-4 h-4 text-secondary" />
-                                <span className="text-secondary font-black uppercase tracking-[0.2em] text-[10px]">{t('explorerDashboard')}</span>
+                                <span className="relative flex h-2 w-2">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                                </span>
+                                <span className="text-secondary font-black uppercase tracking-[0.2em] text-[10px]">{t('explorerDashboard')} · LIVE</span>
                             </div>
                             <h1 className="text-5xl md:text-7xl font-display font-black tracking-tighter text-foreground leading-none">
                                 {t('yourIndian')} <br />
                                 <span className="text-secondary italic">{t('chronicle')}</span>
                             </h1>
                         </div>
+
+                        {/* Journey Summary Stats */}
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                            <div className="bg-white dark:bg-card p-6 rounded-3xl border border-border/50 shadow-soft">
+                                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">{t('totalBookings')}</p>
+                                <div className="flex items-center gap-2">
+                                    <span className="text-2xl font-display font-black">{bookings.length}</span>
+                                    <div className="flex gap-1">
+                                        <span className="w-2 h-2 rounded-full bg-secondary" title={`${pendingJourneys} Pending`} />
+                                        <span className="w-2 h-2 rounded-full bg-nature" title={`${approvedJourneys} Approved`} />
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="bg-white dark:bg-card p-6 rounded-3xl border border-border/50 shadow-soft">
+                                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">Total Travelers</p>
+                                <div className="flex items-center gap-2">
+                                    <span className="text-2xl font-display font-black">{totalGuests}</span>
+                                    <Users className="w-4 h-4 text-secondary" />
+                                </div>
+                            </div>
+                            <div className="hidden md:block bg-white dark:bg-card p-6 rounded-3xl border border-border/50 shadow-soft">
+                                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">Approved Trips</p>
+                                <div className="flex items-center gap-2">
+                                    <span className="text-2xl font-display font-black text-nature">{approvedJourneys}</span>
+                                    <CheckCircle2 className="w-4 h-4 text-nature" />
+                                </div>
+                            </div>
+                        </div>
+
                         <div className="flex bg-white dark:bg-card p-2 rounded-2xl shadow-soft border border-border/50">
                             <button
                                 onClick={() => setActiveTab("bookings")}

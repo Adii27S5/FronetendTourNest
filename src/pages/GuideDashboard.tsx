@@ -22,13 +22,22 @@ const GuideDashboard = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [experiences, setExperiences] = useState<any[]>([]);
+    const [bookings, setBookings] = useState<any[]>([]);
 
     const fetchExperiences = async () => {
         try {
             setLoading(true);
-            const response = await apiClient.get(`/api/attractions`);
-            if (response.data) {
-                setExperiences(response.data);
+            const [attRes, bookRes] = await Promise.all([
+                apiClient.get(`/api/attractions`),
+                apiClient.get(`/api/bookings`)
+            ]);
+            if (attRes.data) {
+                // Filter experiences to only show those belonging to the current guide if guide email exists
+                const guideExp = attRes.data.filter((a: any) => !user?.email || a.guideEmail === user.email);
+                setExperiences(guideExp);
+            }
+            if (bookRes.data) {
+                setBookings(bookRes.data);
             }
         } catch (error) {
             console.error("Error fetching experiences:", error);
@@ -62,6 +71,8 @@ const GuideDashboard = () => {
 
     useEffect(() => {
         fetchExperiences();
+        const interval = setInterval(fetchExperiences, 10000); // 10s polling
+        return () => clearInterval(interval);
     }, []);
 
     if (loading) {
@@ -80,8 +91,11 @@ const GuideDashboard = () => {
                     <div className="flex flex-col md:flex-row items-start md:items-end justify-between mb-12 gap-8">
                         <div className="space-y-4 animate-slide-up">
                             <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-secondary/5 rounded-full">
-                                <Sparkles className="w-4 h-4 text-secondary" />
-                                <span className="text-secondary font-black uppercase tracking-[0.2em] text-[10px]">{t("guideStoryStudio")}</span>
+                                <span className="relative flex h-2 w-2">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                                </span>
+                                <span className="text-secondary font-black uppercase tracking-[0.2em] text-[10px]">{t("guideStoryStudio")} · LIVE</span>
                             </div>
                             <h1 className="text-5xl md:text-7xl font-display font-black tracking-tighter text-foreground leading-none">
                                 {t("yourStoryTitle")} <br />
@@ -108,7 +122,11 @@ const GuideDashboard = () => {
                                         <ArrowUpRight className="w-6 h-6 text-muted-foreground opacity-30" />
                                     </div>
                                     <div>
-                                        <h4 className="text-4xl font-display font-black">₹42.5K</h4>
+                                        <h4 className="text-4xl font-display font-black">
+                                            ₹{bookings.filter(b => b.status === 'Approved' && experiences.some(e => e.title === b.entity))
+                                                .reduce((acc, curr) => acc + (parseFloat(curr.amount?.toString().replace(/[₹,]/g, '') || '0')), 0)
+                                                .toLocaleString()}
+                                        </h4>
                                         <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mt-1">{t("earningsMonth")}</p>
                                     </div>
                                     <div className="h-2 bg-muted rounded-full overflow-hidden">
@@ -116,7 +134,7 @@ const GuideDashboard = () => {
                                     </div>
                                 </CardContent>
                             </Card>
-
+ 
                             <Card className="rounded-[2.5rem] border-border/50 shadow-soft overflow-hidden group hover:shadow-premium transition-all">
                                 <CardContent className="p-8 space-y-6">
                                     <div className="flex items-center justify-between">
@@ -126,7 +144,10 @@ const GuideDashboard = () => {
                                         <ArrowUpRight className="w-6 h-6 text-muted-foreground opacity-30" />
                                     </div>
                                     <div>
-                                        <h4 className="text-4xl font-display font-black">1.2K</h4>
+                                        <h4 className="text-4xl font-display font-black">
+                                            {bookings.filter(b => b.status === 'Approved' && experiences.some(e => e.title === b.entity))
+                                                .reduce((acc, curr) => acc + (curr.guestsCount || 0), 0)}
+                                        </h4>
                                         <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mt-1">{t("peopleGuided")}</p>
                                     </div>
                                 </CardContent>

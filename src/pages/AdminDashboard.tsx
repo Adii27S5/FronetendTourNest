@@ -140,17 +140,23 @@ const AdminDashboard = () => {
         };
 
         fetchData();
+        const interval = setInterval(fetchData, 10000); // Poll every 10s
+        return () => clearInterval(interval);
     }, []);
 
     // Update stats when data changes
     useEffect(() => {
-        setStats(prev => [
-            { ...prev[0], value: stays.length.toString() },
-            { ...prev[1], value: guides.length.toString() },
-            { ...prev[2], value: tourists.length.toString() },
-            { ...prev[3] }
+        const approvedBookings = bookings.filter(b => b.status === 'Approved');
+        const totalGuests = approvedBookings.reduce((acc, b) => acc + (b.guestsCount || 0), 0);
+        
+        setStats([
+            { label: t("activeStays"), value: stays.length.toString(), icon: Home, color: "bg-secondary" },
+            { label: t("verifiedGuides"), value: guides.length.toString(), icon: Compass, color: "bg-nature" },
+            { label: t("totalUsers"), value: tourists.length.toString(), icon: Users, color: "bg-primary" },
+            { label: "Total People", value: totalGuests.toString(), icon: Users, color: "bg-fuchsia-500" },
+            { label: t("systemHealth"), value: "99.9%", icon: Activity, color: "bg-gold" }
         ]);
-    }, [stays, guides, tourists]);
+    }, [stays, guides, tourists, bookings, t]);
 
 
     // --- Handlers ---
@@ -271,8 +277,11 @@ const AdminDashboard = () => {
                     <div className="flex flex-col md:flex-row items-start md:items-end justify-between mb-12 gap-8">
                         <div className="space-y-4">
                             <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-secondary/5 rounded-full border border-secondary/20">
-                                <ShieldCheck className="w-4 h-4 text-secondary" />
-                                <span className="text-secondary font-black uppercase tracking-[0.2em] text-[10px]">{t('masterAdminHub')}</span>
+                                <span className="relative flex h-2 w-2">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                                </span>
+                                <span className="text-secondary font-black uppercase tracking-[0.2em] text-[10px]">{t('masterAdminHub')} · LIVE</span>
                             </div>
                             <h1 className="text-6xl md:text-8xl font-display font-black tracking-tighter text-foreground leading-none">
                                 {t("adminDashboard")}
@@ -307,7 +316,7 @@ const AdminDashboard = () => {
                     <div className="animate-scale-in">
                         {activeView === 'overview' && (
                             <div className="space-y-12">
-                                <div className="grid lg:grid-cols-4 gap-6">
+                                <div className="grid lg:grid-cols-5 gap-6">
                                     {stats.map((stat, i) => (
                                         <Card key={i} className="rounded-[2.5rem] border-border/50 shadow-soft overflow-hidden group border border-border/50 flex flex-col h-full effect-3d">
                                             <CardContent className="p-8 flex items-center gap-6">

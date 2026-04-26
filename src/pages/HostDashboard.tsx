@@ -42,13 +42,28 @@ const HostDashboard = () => {
       if (res.data) setMessages(res.data);
     } catch (e) { /* silent */ }
   };
+ 
+  useEffect(() => { 
+    fetchData(); 
+    fetchMessages(); 
+    const interval = setInterval(() => {
+      fetchData();
+      fetchMessages();
+    }, 10000); // 10s polling for "real-time" updates
+    return () => clearInterval(interval);
+  }, []);
 
-  useEffect(() => { fetchData(); fetchMessages(); }, []);
+  const approvedBookings = incomingBookings.filter(b => b.status === 'Approved');
+  const pendingBookings = incomingBookings.filter(b => b.status === 'Pending');
 
-  const totalRevenue = incomingBookings.reduce((acc, b) => {
+  const totalRevenue = approvedBookings.reduce((acc, b) => {
     const amount = typeof b.amount === 'string' ? parseFloat(b.amount.replace(/[₹,]/g, '')) : (b.amount || 0);
     return acc + amount;
   }, 0);
+
+  const totalGuests = approvedBookings.reduce((acc, b) => acc + (b.guestsCount || 0), 0);
+  const totalBookings = incomingBookings.length;
+  const approvedCount = approvedBookings.length;
 
   const handleApproveBooking = async (b: any) => {
     try {
@@ -74,9 +89,10 @@ const HostDashboard = () => {
 
   const stats = [
     { label: "Total Views", value: (listings.length * 168 + incomingBookings.length * 12).toLocaleString(), icon: Eye, color: "from-orange-400 to-pink-500", bg: "bg-orange-50 dark:bg-orange-900/20", text: "text-orange-500" },
-    { label: "Bookings", value: incomingBookings.length.toString(), icon: Calendar, color: "from-emerald-400 to-teal-500", bg: "bg-emerald-50 dark:bg-emerald-900/20", text: "text-emerald-500" },
-    { label: "Revenue", value: `₹${(totalRevenue / 1000).toFixed(1)}K`, icon: TrendingUp, color: "from-blue-400 to-indigo-500", bg: "bg-blue-50 dark:bg-blue-900/20", text: "text-blue-500" },
-    { label: "Avg Rating", value: "4.9", icon: Star, color: "from-yellow-400 to-amber-500", bg: "bg-yellow-50 dark:bg-yellow-900/20", text: "text-yellow-500" },
+    { label: "Bookings", value: totalBookings.toString(), icon: Calendar, color: "from-emerald-400 to-teal-500", bg: "bg-emerald-50 dark:bg-emerald-900/20", text: "text-emerald-500" },
+    { label: "Approved", value: approvedCount.toString(), icon: Check, color: "from-blue-400 to-indigo-500", bg: "bg-blue-50 dark:bg-blue-900/20", text: "text-blue-500" },
+    { label: "Total Guests", value: totalGuests.toString(), icon: Users, color: "from-purple-400 to-fuchsia-500", bg: "bg-purple-50 dark:bg-purple-900/20", text: "text-purple-500" },
+    { label: "Revenue", value: `₹${(totalRevenue / 1000).toFixed(1)}K`, icon: TrendingUp, color: "from-amber-400 to-orange-500", bg: "bg-amber-50 dark:bg-amber-900/20", text: "text-amber-500" },
   ];
 
   return (
@@ -99,8 +115,11 @@ const HostDashboard = () => {
             <div className="relative z-10 flex flex-col md:flex-row items-start md:items-end justify-between gap-8">
               <div className="space-y-3">
                 <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/10 border border-white/20 rounded-full backdrop-blur-sm">
-                  <Sparkles className="w-3.5 h-3.5 text-secondary" />
-                  <span className="text-white/80 font-black uppercase tracking-[0.2em] text-[10px]">Host Management Center</span>
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                  </span>
+                  <span className="text-white/80 font-black uppercase tracking-[0.2em] text-[10px]">Host Management Center · LIVE</span>
                 </div>
                 <h1 className="text-5xl md:text-6xl font-display font-black tracking-tighter text-white leading-tight">
                   Your Hospitality<br />
@@ -134,7 +153,7 @@ const HostDashboard = () => {
             </div>
 
             {/* Stats row inside hero */}
-            <div className="relative z-10 grid grid-cols-2 md:grid-cols-4 gap-4 mt-10 pt-10 border-t border-white/10">
+            <div className="relative z-10 grid grid-cols-2 md:grid-cols-5 gap-4 mt-10 pt-10 border-t border-white/10">
               {stats.map((stat, i) => (
                 <div key={i} className="flex items-center gap-4">
                   <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${stat.color} flex items-center justify-center text-white shadow-lg flex-shrink-0`}>
