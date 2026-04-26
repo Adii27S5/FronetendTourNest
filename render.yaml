@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: tournest-frontend
+    env: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    region: oregon
+    plan: free
+    envVars:
+      - key: VITE_API_URL
+        value: https://tournest-backend.onrender.com
