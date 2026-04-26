@@ -1,99 +1,54 @@
 import { API_BASE_URL } from '@/config/api';
 
-// Explicit static imports to guarantee bundling and trigger HMR
-import auliCabinImg from '@/assets/auli-cabin.png';
-import shimlaHeritageImg from '@/assets/shimla-heritage.png';
-import varkalaCliffImg from '@/assets/varkala-cliff.png';
-import palolemBeachImg from '@/assets/palolem-beach.png';
-import jaipurFoodImg from '@/assets/jaipur-food.png';
-import kolkataFoodImg from '@/assets/kolkata-food.png';
-import amritsarFoodImg from '@/assets/amritsar-food.png';
-import theyyamImg from '@/assets/theyyam.png';
-import sufiMusicImg from '@/assets/sufi-music.png';
-import baulSingersImg from '@/assets/baul-singers.png';
+// Eagerly load all assets from the relative assets directory
+const allAssets: Record<string, any> = import.meta.glob('../assets/*.{png,jpg,jpeg,webp,svg}', { eager: true });
 
-// Static URL map — no glob, no eager loading, zero startup cost
-const imageMap: Record<string, string> = {
-  // Unsplash remote fallbacks
-  'delhi-haveli.png': 'https://images.unsplash.com/photo-1585129631248-1e43445cd867?auto=format&fit=crop&q=80&w=800',
-  'agra-homestay.png': 'https://images.unsplash.com/photo-1548013146-72479768bbaa?auto=format&fit=crop&q=80&w=800',
+// Build a flat map of filename -> hashedUrl
+const assetMap: Record<string, string> = {};
+Object.entries(allAssets).forEach(([path, module]) => {
+  const fileName = path.split('/').pop() || '';
+  if (fileName) assetMap[fileName] = module.default;
+});
+
+// Explicit Unsplash fallbacks or local aliases for missing assets
+const manualAliasMap: Record<string, string> = {
+  // Unsplash Premium Fallbacks
   'agra-stay.png': 'https://images.unsplash.com/photo-1548013146-72479768bbaa?auto=format&fit=crop&q=80&w=800',
+  'agra-homestay.png': 'https://images.unsplash.com/photo-1548013146-72479768bbaa?auto=format&fit=crop&q=80&w=800',
+  'delhi-haveli.png': 'https://images.unsplash.com/photo-1585129631248-1e43445cd867?auto=format&fit=crop&q=80&w=800',
   'darjeeling-villa.png': 'https://images.unsplash.com/photo-1517330357046-3ab5a5dd42b1?auto=format&fit=crop&q=80&w=800',
-  'jaipur-heritage.png': '/src/assets/jaipur-heritage.png',
-  'jaipur-haveli-stay.png': '/src/assets/jaipur-heritage.png',
-  'bhopal-boat.png': '/src/assets/bhopal-lake.png',
-  'bhopal-stay.png': '/src/assets/bhopal-lake.png',
-  'poha-jalebi.png': '/src/assets/bhopal-food.png',
-  'bhopal-food.png': '/src/assets/bhopal-food.png',
   'bhopal-hotel.png': 'https://images.unsplash.com/photo-1599661559905-2423165b4c48?auto=format&fit=crop&q=80&w=800',
-  'munnar-resort.png': '/src/assets/munnar-cottage.png',
-  'kerala-paratha.png': '/src/assets/banarasi-paan.png',
-  'ladakh-bikers.jpg': '/src/assets/ladakh-bikers.png',
-  'amritsar-stay.png': '/src/assets/golden-temple.png',
-  'bedai-jalebi.png': '/src/assets/chole-bhature.png',
-  'nihari.png': '/src/assets/kashmiri-rogan-josh.png',
-  'darjeeling-momos.png': '/src/assets/kolkata-food.png',
-  'darjeeling-train.png': '/src/assets/munnar-tea.jpg',
-  'dal-baati-churma.png': '/src/assets/dal-baati-churma.png',
-  'agra-petha.png': '/src/assets/kolkata-food.png',
-  'kashmiri-rogan-josh.png': '/src/assets/kashmiri-rogan-josh.png',
-  'appam-stew.png': '/src/assets/kolkata-food.png',
-  'amritsar-kulcha.png': '/src/assets/chole-bhature.png',
-  'varanasi_chat.png': '/src/assets/chole-bhature.png',
-  'malaiyyo-dessert.png': '/src/assets/kolkata-food.png',
-  'banarasi-paan.png': '/src/assets/banarasi-paan.png',
-  'andaman-beach.jpg': 'https://images.unsplash.com/photo-1589394815804-964ed9be2eb3?auto=format&fit=crop&q=80&w=800',
-  // Local asset paths (Vite hashed at build)
-  'varanasi-ghats.jpg': '/src/assets/varanasi-ghats.jpg',
-  'varanasi-riverside.png': '/src/assets/varanasi-ghats.jpg',
-  'varanasi-ghat-stay.png': '/src/assets/varanasi-boutique.png',
-  'varanasi-boutique.png': '/src/assets/varanasi-boutique.png',
-  'jaipur-haveli.jpg': '/src/assets/jaipur-haveli.jpg',
-  'manali-snow.jpg': '/src/assets/manali-snow.jpg',
-  'kerala-houseboat.jpg': '/src/assets/kerala-houseboat.jpg',
-  'goa-beach.jpg': '/src/assets/goa-beach.jpg',
-  'munnar-tea.jpg': '/src/assets/munnar-tea.jpg',
-  'qutub-minar.png': '/src/assets/qutub-minar.png',
-  'delhi-lodge.png': '/src/assets/delhi-lodge-new.png',
-  'munnar-cottage.png': '/src/assets/munnar-cottage.png',
-  'munnar-mist.png': '/src/assets/munnar-mist-premium.png',
-  'munnar-valley.png': '/src/assets/munnar-valley-premium.png',
-  'tea-safari.png': '/src/assets/tea-safari.png',
-  'dal-lake.png': '/src/assets/dal-lake.png',
-  'ganges-aarti.png': '/src/assets/ganges-aarti.png',
-  'taj-mahal-sunrise.png': '/src/assets/taj-mahal-sunrise.png',
-  'golden-temple.png': '/src/assets/golden-temple.png',
-  'mahabalipuram.png': '/src/assets/mahabalipuram.png',
-  'chole-bhature.png': '/src/assets/chole-bhature.png',
-  'udaipur-lake.png': '/src/assets/udaipur-lake.png',
-  'shimla-snow.png': '/src/assets/shimla-snow.png',
-  'havelock-eco.png': '/src/assets/havelock-eco-new.png',
-  'manali-snow-stay.png': '/src/assets/manali-snow-stay.png',
-  'gulmarg-ski-resort.png': '/src/assets/gulmarg-new.png',
-  'oberoi-amarvilas.png': '/src/assets/oberoi-amarvilas.png',
-  'leela-palace.png': '/src/assets/leela-palace.png',
-  'udaipur-floating-palace.png': '/src/assets/udaipur-floating-palace.png',
-  'glenburn-tea.png': '/src/assets/glenburn-tea.png',
   'itc-grand-chola.png': 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&q=80&w=800',
-  'rishikesh-yoga.png': '/src/assets/rishikesh-yoga.png',
-  'tirupati-balaji.png': '/src/assets/tirupati-balaji.png',
-  'kathakali-dance.png': '/src/assets/kathakali-dance.png',
-  'rajputana-walk.png': '/src/assets/rajputana-walk.png',
-  'victoria-memorial.png': '/src/assets/victoria-memorial.png',
-  'manali-paragliding.png': '/src/assets/manali-paragliding.png',
-  'havelock-scuba.png': '/src/assets/havelock-scuba.png',
+  'andaman-beach.jpg': 'https://images.unsplash.com/photo-1589394815804-964ed9be2eb3?auto=format&fit=crop&q=80&w=800',
   
-  // New unique images
-  'auli-cabin.png': auliCabinImg,
-  'shimla-heritage.png': shimlaHeritageImg,
-  'varkala-cliff.png': varkalaCliffImg,
-  'palolem-beach.png': palolemBeachImg,
-  'jaipur-food.png': jaipurFoodImg,
-  'kolkata-food.png': kolkataFoodImg,
-  'amritsar-food.png': amritsarFoodImg,
-  'theyyam.png': theyyamImg,
-  'sufi-music.png': sufiMusicImg,
-  'baul-singers.png': baulSingersImg
+  // Local Aliases (Mapping missing names to existing assets)
+  'bhopal-boat.png': 'bhopal-lake.png',
+  'bhopal-stay.png': 'bhopal-lake.png',
+  'delhi-lodge.png': 'delhi-lodge-new.png',
+  'varanasi-ghat-stay.png': 'varanasi-boutique.png',
+  'varanasi-riverside.png': 'varanasi-ghats.jpg',
+  'munnar-resort.png': 'munnar-cottage.png',
+  'munnar-mist.png': 'munnar-mist-premium.png',
+  'munnar-valley.png': 'munnar-valley-premium.png',
+  'jaipur-haveli-stay.png': 'jaipur-haveli.jpg',
+  'amritsar-stay.png': 'golden-temple.png',
+  'gulmarg-ski-resort.png': 'gulmarg-new.png',
+  'havelock-eco.png': 'havelock-eco-new.png',
+  'darjeeling-villa.png': 'glenburn-tea.png',
+  'ladakh-lodge.png': 'ladakh-bikers.png',
+  'agra-stay.png': 'taj-mahal-sunrise.png',
+  'munnar-mist.png': 'munnar-mist-premium.png',
+  'manali-snow-stay.png': 'manali-cloud-9.png',
+  'poha-jalebi.png': 'bhopal-food.png',
+  'bedai-jalebi.png': 'chole-bhature.png',
+  'nihari.png': 'kashmiri-rogan-josh.png',
+  'darjeeling-momos.png': 'kolkata-food.png',
+  'agra-petha.png': 'kolkata-food.png',
+  'appam-stew.png': 'kolkata-food.png',
+  'amritsar-kulcha.png': 'chole-bhature.png',
+  'varanasi_chat.png': 'chole-bhature.png',
+  'malaiyyo-dessert.png': 'kolkata-food.png',
+  'andaman-scuba.png': 'havelock-scuba.png',
 };
 
 export const resolveImage = (src: string) => {
@@ -101,20 +56,38 @@ export const resolveImage = (src: string) => {
 
   const cleanSrc = src.trim();
 
-  // Already a full URL, data URI or absolute/relative path — return as-is
-  if (cleanSrc.startsWith('http') || cleanSrc.startsWith('data:') || cleanSrc.startsWith('/') || cleanSrc.startsWith('./')) {
+  // 1. Full URLs or Data URIs
+  if (cleanSrc.startsWith('http') || cleanSrc.startsWith('data:')) {
     return cleanSrc;
   }
 
-  // Try static map (case-insensitive)
-  const mapped = imageMap[cleanSrc] || imageMap[cleanSrc.toLowerCase()];
-  if (mapped) return mapped;
+  // 2. Manual Alias Map (Recursive resolve)
+  const baseName = cleanSrc.split('/').pop() || '';
+  const alias = manualAliasMap[baseName] || manualAliasMap[baseName.toLowerCase()];
+  
+  // If alias is a full URL, return it
+  if (alias && alias.startsWith('http')) return alias;
+  
+  // 3. Local Asset Map (Check alias first, then original)
+  const targetName = alias || baseName;
+  const resolvedLocal = assetMap[targetName] || assetMap[targetName.toLowerCase()];
+  if (resolvedLocal) return resolvedLocal;
 
-  // Dynamic uploads from backend
-  if (cleanSrc.includes('.')) {
+  // 4. Smart Fallback (Keywords in filename)
+  const lower = baseName.toLowerCase();
+  if (lower.includes('beach')) return assetMap['goa-beach.jpg'];
+  if (lower.includes('snow') || lower.includes('ski')) return assetMap['manali-snow.jpg'];
+  if (lower.includes('heritage') || lower.includes('palace')) return assetMap['jaipur-haveli.jpg'];
+  if (lower.includes('tea') || lower.includes('mist') || lower.includes('valley')) return assetMap['munnar-tea.jpg'];
+  if (lower.includes('food') || lower.includes('jalebi') || lower.includes('paan')) return assetMap['kolkata-food.png'];
+  if (lower.includes('spiritual') || lower.includes('temple')) return assetMap['varanasi-ghats.jpg'];
+  if (lower.includes('boat') || lower.includes('lake') || lower.includes('water')) return assetMap['kerala-houseboat.jpg'];
+
+  // 5. Dynamic Uploads
+  if (cleanSrc.includes('.') && !cleanSrc.startsWith('/')) {
     return `${API_BASE_URL}/api/uploads/${cleanSrc}`;
   }
 
-  // Global default
-  return 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=800';
+  // 6. Global Default (High quality Indian landscape)
+  return 'https://images.unsplash.com/photo-1524492707947-2f85a514d735?auto=format&fit=crop&q=80&w=1200';
 };

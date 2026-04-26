@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import NavigationHeader from "@/components/NavigationHeader";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -20,9 +21,14 @@ import { resolveImage } from "@/lib/image-mapper";
 const AdminDashboard = () => {
     const { toast } = useToast();
     const { t } = useAppContext();
-    const [activeView, setActiveView] = useState("overview");
+    const [searchParams] = useSearchParams();
+    const initialView = searchParams.get('view') || "overview";
+    const [activeView, setActiveView] = useState(initialView);
+    const [searchTerm, setSearchTerm] = useState("");
     const [selectedActivity, setSelectedActivity] = useState<any | null>(null);
     const [detailedItem, setDetailedItem] = useState<{ type: string, data: any } | null>(null);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editData, setEditData] = useState<any>(null);
     const [supportMessages, setSupportMessages] = useState<any[]>([]);
 
     // Platform Health Stats (Calculated dynamically)
@@ -55,36 +61,45 @@ const AdminDashboard = () => {
     // --- Derived State ---
     const supportFeed = reports.filter(r => r.type === 'Support');
 
+    useEffect(() => {
+        const view = searchParams.get('view');
+        if (view) {
+            setActiveView(view);
+        }
+    }, [searchParams]);
+
     // --- Persistence Effects replaced with Fetch Effects ---
     useEffect(() => {
         const fetchData = async () => {
+            // Fetch Users
             try {
-                const [usersRes, bookingsRes, staysRes, attractionsRes, supportRes] = await Promise.all([
-                    apiClient.get(`/api/users`),
-                    apiClient.get(`/api/bookings`),
-                    apiClient.get(`/api/homestays`),
-                    apiClient.get(`/api/attractions`),
-                    apiClient.get(`/api/support`)
-                ]);
+                const usersRes = await apiClient.get(`/api/users`);
+                if (usersRes.data) setTourists(usersRes.data);
+            } catch (error) { console.error("Error fetching users:", error); }
 
-                if (usersRes.data) {
-                    setTourists(usersRes.data);
-                }
-                if (bookingsRes.data) {
-                    setBookings(bookingsRes.data);
-                }
-                if (staysRes.data) {
-                    setStays(staysRes.data);
-                }
-                if (attractionsRes.data) {
-                    setTours(attractionsRes.data);
-                }
-                // fetch support/inbox messages
-                try {
-                    const suppRes = await apiClient.get(`/api/support`);
-                    if (suppRes.data) setSupportMessages(suppRes.data);
-                } catch {}
+            // Fetch Bookings
+            try {
+                const bookingsRes = await apiClient.get(`/api/bookings`);
+                if (bookingsRes.data) setBookings(bookingsRes.data);
+            } catch (error) { console.error("Error fetching bookings:", error); }
+
+            // Fetch Stays
+            try {
+                const staysRes = await apiClient.get(`/api/homestays`);
+                if (staysRes.data) setStays(staysRes.data);
+            } catch (error) { console.error("Error fetching stays:", error); }
+
+            // Fetch Attractions
+            try {
+                const attractionsRes = await apiClient.get(`/api/attractions`);
+                if (attractionsRes.data) setTours(attractionsRes.data);
+            } catch (error) { console.error("Error fetching tours:", error); }
+
+            // Fetch Support Messages
+            try {
+                const supportRes = await apiClient.get(`/api/support`);
                 if (supportRes.data) {
+                    setSupportMessages(supportRes.data);
                     const supportReports = supportRes.data.map((r: any) => ({
                         id: r.id.toString(),
                         title: "Support: " + r.subject,
@@ -97,46 +112,54 @@ const AdminDashboard = () => {
                     }));
                     setReports(prev => [...prev.filter(p => p.type !== 'Support'), ...supportReports]);
                 }
+            } catch (error) { console.error("Error fetching support:", error); }
 
-                // Fetch Pending Tours for Approval
+            // Fetch Pending Tours
+            let tourReports: any[] = [];
+            try {
                 const pendingToursRes = await apiClient.get(`/api/attractions/pending`);
-                const tourReports = (pendingToursRes.data || []).map((t: any) => ({
-                    id: `tour_pending_${t.id}`,
-                    tourId: t.id,
-                    title: "New Tour Submission",
-                    user: t.guideEmail ? t.guideEmail.split('@')[0] : "Guide",
-                    email: t.guideEmail || "No Email Provided",
-                    date: "Pending Approval",
-                    type: "Application",
-                    priority: "High",
-                    details: `Submission for '${t.title}' in ${t.location}. Check details and authorize.`
-                }));
+                if (pendingToursRes.data) {
+                    setPendingTours(pendingToursRes.data);
+                    tourReports = pendingToursRes.data.map((t: any) => ({
+                        id: `tour_pending_${t.id}`,
+                        tourId: t.id,
+                        title: "New Tour Submission",
+                        user: t.guideEmail ? t.guideEmail.split('@')[0] : "Guide",
+                        email: t.guideEmail || "No Email Provided",
+                        date: "Pending Approval",
+                        type: "Application",
+                        priority: "High",
+                        details: `Submission for '${t.title}' in ${t.location}. Check details and authorize.`
+                    }));
+                }
+            } catch (error) { console.error("Error fetching pending tours:", error); }
 
-                // Fetch Pending Stays for Approval
+            // Fetch Pending Stays
+            let stayReports: any[] = [];
+            try {
                 const pendingStaysRes = await apiClient.get(`/api/homestays/pending`);
                 if (pendingStaysRes.data) {
                     setPendingStays(pendingStaysRes.data);
+                    stayReports = pendingStaysRes.data.map((s: any) => ({
+                        id: `stay_pending_${s.id}`,
+                        stayId: s.id,
+                        title: "New Property Listing",
+                        user: s.host ? s.host.split('@')[0] : "Host",
+                        email: s.host || "No Email Provided",
+                        date: "Pending Approval",
+                        type: "Application",
+                        priority: "High",
+                        details: `Host ${s.host} submitted '${s.title}' in ${s.location}. Check details and authorize.`
+                    }));
                 }
-                const stayReports = (pendingStaysRes.data || []).map((s: any) => ({
-                    id: `stay_pending_${s.id}`,
-                    stayId: s.id,
-                    title: "New Property Listing",
-                    user: s.host ? s.host.split('@')[0] : "Host",
-                    email: s.host || "No Email Provided",
-                    date: "Pending Approval",
-                    type: "Application",
-                    priority: "High",
-                    details: `Host ${s.host} submitted '${s.title}' in ${s.location}. Check details and authorize.`
-                }));
+            } catch (error) { console.error("Error fetching pending stays:", error); }
 
-                setReports(prev => [
-                    ...prev.filter(p => !p.tourId && !p.stayId),
-                    ...tourReports,
-                    ...stayReports
-                ]);
-            } catch (error) {
-                console.error("Error fetching admin data:", error);
-            }
+            // Update Reports Feed
+            setReports(prev => [
+                ...prev.filter(p => !p.tourId && !p.stayId && p.type !== 'Application'),
+                ...tourReports,
+                ...stayReports
+            ]);
         };
 
         fetchData();
@@ -273,41 +296,79 @@ const AdminDashboard = () => {
             <NavigationHeader />
             <main className="pt-32 pb-16 px-6">
                 <div className="container mx-auto max-w-7xl animate-fade-in">
-                    {/* Header */}
-                    <div className="flex flex-col md:flex-row items-start md:items-end justify-between mb-12 gap-8">
-                        <div className="space-y-4">
-                            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-secondary/5 rounded-full border border-secondary/20">
-                                <span className="relative flex h-2 w-2">
-                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                                </span>
-                                <span className="text-secondary font-black uppercase tracking-[0.2em] text-[10px]">{t('masterAdminHub')} · LIVE</span>
+                    {/* Hero Header (Empire Theme) */}
+                    <div className="relative mb-12 overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-10 md:p-14 shadow-2xl">
+                        {/* Decorative blobs */}
+                        <div className="absolute top-0 right-0 w-80 h-80 bg-secondary/20 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/3" />
+                        <div className="absolute bottom-0 left-1/3 w-60 h-60 bg-primary/20 rounded-full blur-[80px] translate-y-1/2" />
+                        {/* Grid pattern */}
+                        <div className="absolute inset-0 opacity-5" style={{
+                            backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)',
+                            backgroundSize: '32px 32px'
+                        }} />
+
+                        <div className="relative z-10 flex flex-col xl:flex-row items-start xl:items-end justify-between gap-8">
+                            <div className="space-y-3">
+                                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/10 border border-white/20 rounded-full backdrop-blur-sm">
+                                    <span className="relative flex h-2 w-2">
+                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                                    </span>
+                                    <span className="text-white/80 font-black uppercase tracking-[0.2em] text-[10px]">Master Admin Hub · LIVE</span>
+                                </div>
+                                <h1 className="text-5xl md:text-6xl font-display font-black tracking-tighter text-white leading-tight">
+                                    Your Administration<br />
+                                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-secondary to-amber-400 italic">Empire.</span>
+                                </h1>
+                                <p className="text-white/50 font-medium text-sm">Managing {tourists.length} Users · {stays.length} Properties · {tours.length} Tours</p>
                             </div>
-                            <h1 className="text-6xl md:text-8xl font-display font-black tracking-tighter text-foreground leading-none">
-                                {t("adminDashboard")}
-                            </h1>
+
+                            {/* Tab pills */}
+                            <div className="flex flex-wrap bg-white/10 border border-white/20 backdrop-blur-md p-1.5 rounded-2xl gap-1 max-w-full overflow-x-auto premium-scrollbar">
+                                {[
+                                    { id: "overview", label: t("overview"), icon: Activity },
+                                    { id: "tourists", label: "Users", icon: Users },
+                                    { id: "stays", label: t("staysLabel"), icon: Home },
+                                    { id: "tours", label: t("toursLabel"), icon: Compass },
+                                    { id: "applications", label: "Applications", icon: FileText },
+                                    { id: "bookings", label: t("bookings"), icon: Ticket },
+                                    { id: "inbox", label: "Inbox", icon: Mail },
+                                    { id: "support", label: t("supportLabel"), icon: MessageSquare },
+                                    { id: "reviews", label: t("reviewsLabel"), icon: ThumbsUp }
+                                ].map((tab) => (
+                                    <button
+                                        key={tab.id}
+                                        onClick={() => setActiveView(tab.id)}
+                                        className={`relative flex items-center gap-2 px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all ${
+                                            activeView === tab.id
+                                                ? "bg-white text-slate-900 shadow-lg"
+                                                : "text-white/70 hover:text-white hover:bg-white/10"
+                                            }`}
+                                    >
+                                        <tab.icon className="w-3.5 h-3.5" />
+                                        {tab.label}
+                                        {tab.id === 'applications' && (pendingStays.length + pendingTours.length) > 0 && (
+                                            <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-secondary text-white text-[8px] font-black rounded-full flex items-center justify-center">
+                                                {pendingStays.length + pendingTours.length}
+                                            </span>
+                                        )}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
 
-                        <div className="flex flex-wrap bg-white dark:bg-card p-2 rounded-3xl shadow-premium border border-border/50">
-                            {[
-                                { id: "overview", label: t("overview"), icon: Activity },
-                                { id: "tourists", label: t("touristsLabel"), icon: Users },
-                                { id: "stays", label: t("staysLabel"), icon: Home },
-                                { id: "tours", label: t("toursLabel"), icon: Compass },
-                                { id: "bookings", label: t("bookings"), icon: Ticket },
-                                { id: "inbox", label: "Inbox", icon: Mail },
-                                { id: "support", label: t("supportLabel"), icon: MessageSquare },
-                                { id: "reviews", label: t("reviewsLabel"), icon: ThumbsUp }
-                            ].map((tab) => (
-                                <button
-                                    key={tab.id}
-                                    onClick={() => setActiveView(tab.id)}
-                                    className={`flex items-center gap-3 px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${activeView === tab.id ? "bg-secondary text-white shadow-glow" : "text-muted-foreground hover:bg-muted/50"
-                                        }`}
-                                >
-                                    <tab.icon className="w-4 h-4" />
-                                    {tab.label}
-                                </button>
+                        {/* Stats row inside hero */}
+                        <div className="relative z-10 grid grid-cols-2 md:grid-cols-4 gap-4 mt-10 pt-10 border-t border-white/10">
+                            {stats.map((stat, i) => (
+                                <div key={i} className="flex items-center gap-4">
+                                    <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${stat.color === 'bg-secondary' ? 'from-secondary to-amber-500' : stat.color === 'bg-nature' ? 'from-nature to-emerald-500' : stat.color === 'bg-primary' ? 'from-primary to-blue-500' : 'from-gold to-yellow-500'} flex items-center justify-center text-white shadow-lg flex-shrink-0`}>
+                                        <stat.icon className="w-5 h-5" />
+                                    </div>
+                                    <div>
+                                        <p className="text-white/50 text-[10px] uppercase font-black tracking-widest">{stat.label}</p>
+                                        <p className="text-white font-black text-xl font-display">{stat.value}</p>
+                                    </div>
+                                </div>
                             ))}
                         </div>
                     </div>
@@ -400,12 +461,19 @@ const AdminDashboard = () => {
                             <div className="bg-white dark:bg-card rounded-[3.5rem] border border-border/50 shadow-premium overflow-hidden border-t-8 border-t-secondary animate-scale-in">
                                 <div className="p-10 border-b border-border/50 flex flex-col sm:flex-row items-center justify-between gap-6 bg-muted/10">
                                     <h2 className="text-4xl font-display font-black capitalize italic">{activeView} {t('overview')}</h2>
-                                    <div className="relative w-full sm:w-[400px]">
-                                        <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                                        <input type="text" placeholder={`${t('search')} in ${activeView}...`} className="w-full pl-16 h-16 rounded-3xl bg-white border-2 border-transparent focus:border-secondary transition-all outline-none font-bold shadow-soft" />
+                                    <div className="flex items-center gap-4">
+                                        <div className="relative w-full sm:w-[400px]">
+                                            <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                                            <input type="text" placeholder={`${t('search')} in ${activeView}...`} className="w-full pl-16 h-16 rounded-3xl bg-white border-2 border-transparent focus:border-secondary transition-all outline-none font-bold shadow-soft" />
+                                        </div>
+                                        {['stays', 'tours', 'tourists'].includes(activeView) && (
+                                            <Button className="h-16 px-8 rounded-3xl bg-secondary text-white font-black text-[10px] uppercase tracking-widest shadow-glow hover:scale-105 transition-all" onClick={() => { setIsEditing(true); setEditData({ type: activeView, isNew: true }); }}>
+                                                Add New
+                                            </Button>
+                                        )}
                                     </div>
                                 </div>
-                                {['tourists', 'bookings', 'reviews', 'support', 'inbox'].includes(activeView) && (
+                                {['bookings', 'reviews', 'support', 'inbox'].includes(activeView) && (
                                 <div className="overflow-x-auto">
                                     <table className="w-full text-left">
                                         <thead>
@@ -416,40 +484,6 @@ const AdminDashboard = () => {
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-border/50">
-                                            {activeView === 'tourists' && tourists.map(tourist => (
-                                                <tr key={tourist.id} className="hover:bg-muted/5 transition-colors group">
-                                                    <td className="p-10">
-                                                        <div className="flex items-center gap-6">
-                                                            <div className="w-16 h-16 rounded-[1.5rem] bg-primary/10 flex items-center justify-center text-primary font-display font-black text-2xl border-2 border-primary/20">
-                                                                {tourist.name?.[0] || 'U'}
-                                                            </div>
-                                                            <div className="space-y-1">
-                                                                <div className="font-black text-2xl group-hover:text-secondary transition-colors">{tourist.name}</div>
-                                                                <div className="text-sm font-bold text-muted-foreground opacity-70 italic">{tourist.email}</div>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="p-10">                                                         
-                                                        <div className="flex flex-col gap-2">
-                                                            <div className="flex items-center gap-4 text-sm font-black text-muted-foreground">                                                             
-                                                                <div className="px-3 py-1 bg-muted/50 rounded-lg">{t('joinedLabel')}: {tourist.joined || '—'}</div>
-                                                                <div className={`px-3 py-1 rounded-lg ${tourist.role === 'ADMIN' ? 'bg-secondary/20 text-secondary' : tourist.role === 'GUIDE' ? 'bg-nature/20 text-nature' : 'bg-primary/20 text-primary'}`}>Role: {tourist.role || 'USER'}</div>
-                                                            </div>
-                                                            <div className="text-xs font-bold text-muted-foreground/80">
-                                                                Tours Posted: {tours.filter(t => t.guideEmail === tourist.email).length} | Foods Posted: 0
-                                                            </div>
-                                                            <Button variant="ghost" className="w-fit mt-2 px-3 py-1 bg-secondary/10 text-secondary rounded-lg italic hover:bg-secondary/20" onClick={() => setDetailedItem({ type: 'user_activity', data: { user: tourist.name, email: tourist.email } })}>
-                                                                View Activity <ArrowUpRight className="w-3 h-3 ml-2" />
-                                                            </Button>
-                                                        </div>
-                                                    </td>
-                                                    <td className="p-10 text-center">
-                                                        <Button variant="ghost" className="w-14 h-14 rounded-2xl text-destructive hover:bg-destructive/10" onClick={() => handleDelete('tourist', tourist.id)}>
-                                                            <Trash2 className="w-7 h-7" />
-                                                        </Button>
-                                                    </td>
-                                                </tr>
-                                            ))}
 
                                             {activeView === 'bookings' && bookings.map(booking => (
                                                 <tr key={booking.id} className="hover:bg-muted/5 transition-colors group">
@@ -541,7 +575,47 @@ const AdminDashboard = () => {
                                 </div>
                                 )}
                                 
-                                {/* New CSS Grid Layout for Stays and Tours */}
+                                
+                                {/* New CSS Grid Layout for Users, Stays, and Tours */}
+                                {activeView === 'tourists' && (
+                                    <div className="p-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 bg-muted/5">
+                                        {tourists.map(tourist => (
+                                            <div key={tourist.id} className="group relative bg-white dark:bg-card rounded-[2rem] border border-border/50 shadow-soft hover:shadow-premium transition-all duration-300 hover:-translate-y-2 overflow-hidden flex flex-col">
+                                                <div className="h-32 w-full bg-gradient-tricolor opacity-10 relative overflow-hidden" />
+                                                <div className="absolute top-10 left-1/2 -translate-x-1/2 w-24 h-24 rounded-[2rem] bg-white dark:bg-card shadow-lg flex items-center justify-center border-4 border-white dark:border-card z-10">
+                                                    <div className="w-full h-full rounded-[1.5rem] bg-primary/10 flex items-center justify-center text-primary font-display font-black text-4xl">
+                                                        {tourist.name?.[0] || tourist.fullName?.[0] || 'U'}
+                                                    </div>
+                                                </div>
+                                                <div className="p-6 pt-16 space-y-4 flex-1 flex flex-col items-center text-center">
+                                                    <div className="space-y-1">
+                                                        <h4 className="text-2xl font-display font-black leading-tight group-hover:text-primary transition-colors">{tourist.fullName || tourist.name}</h4>
+                                                        <p className="text-sm font-bold text-muted-foreground opacity-70 italic">{tourist.email}</p>
+                                                    </div>
+                                                    <div className={`px-4 py-1.5 rounded-xl text-xs font-black uppercase tracking-widest ${tourist.role === 'ADMIN' ? 'bg-secondary/20 text-secondary' : tourist.role === 'GUIDE' ? 'bg-nature/20 text-nature' : 'bg-primary/20 text-primary'}`}>
+                                                        {tourist.role || 'USER'}
+                                                    </div>
+                                                    <div className="flex gap-4 text-xs font-bold text-muted-foreground mt-4">
+                                                        <span className="flex items-center gap-1"><Compass className="w-4 h-4 text-muted-foreground/60"/> {tours.filter(t => t.guideEmail === tourist.email).length} Tours</span>
+                                                        <span className="flex items-center gap-1"><Ticket className="w-4 h-4 text-muted-foreground/60"/> {bookings.filter(b => b.userEmail === tourist.email).length} Bookings</span>
+                                                    </div>
+                                                </div>
+                                                <div className="flex gap-2 p-6 pt-0 mt-auto justify-center">
+                                                    <Button variant="outline" className="flex-1 h-12 rounded-xl text-[10px] font-black uppercase tracking-widest border-2" onClick={() => setDetailedItem({ type: 'user_activity', data: { user: tourist.fullName || tourist.name, email: tourist.email } })}>
+                                                        <Eye className="w-4 h-4 mr-2" /> Timeline
+                                                    </Button>
+                                                    <Button variant="secondary" size="icon" className="w-12 h-12 rounded-xl text-blue-500 hover:text-white hover:bg-blue-500 border-2 border-transparent hover:border-blue-500" onClick={() => { setIsEditing(true); setEditData({ type: 'tourists', ...tourist }); }}>
+                                                        <FileText className="w-4 h-4" />
+                                                    </Button>
+                                                    <Button variant="destructive" size="icon" className="w-12 h-12 rounded-xl border-2 border-transparent hover:border-destructive" onClick={() => handleDelete('tourist', tourist.id)}>
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+
                                 {activeView === 'stays' && (
                                     <div className="p-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 bg-muted/5">
                                         {stays.map(stay => (
@@ -554,6 +628,9 @@ const AdminDashboard = () => {
                                                         <div className="flex gap-2">
                                                             <Button variant="secondary" size="icon" className="w-10 h-10 rounded-full opacity-0 group-hover:opacity-100 transition-opacity translate-y-4 group-hover:translate-y-0 delay-75" onClick={() => setDetailedItem({ type: 'stay_reviews', data: stay })}>
                                                                 <Eye className="w-4 h-4" />
+                                                            </Button>
+                                                            <Button variant="secondary" size="icon" className="w-10 h-10 rounded-full opacity-0 group-hover:opacity-100 transition-opacity translate-y-4 group-hover:translate-y-0 delay-100" onClick={() => { setIsEditing(true); setEditData({ type: 'stays', ...stay }); }}>
+                                                                <FileText className="w-4 h-4" />
                                                             </Button>
                                                             <Button variant="destructive" size="icon" className="w-10 h-10 rounded-full opacity-0 group-hover:opacity-100 transition-opacity translate-y-4 group-hover:translate-y-0" onClick={() => handleDelete('stay', stay.id)}>
                                                                 <Trash2 className="w-4 h-4" />
@@ -593,6 +670,9 @@ const AdminDashboard = () => {
                                                             <Button variant="secondary" size="icon" className="w-10 h-10 rounded-full opacity-0 group-hover:opacity-100 transition-opacity translate-y-4 group-hover:translate-y-0 delay-75" onClick={() => setDetailedItem({ type: 'stay_reviews', data: tour })}>
                                                                 <Eye className="w-4 h-4" />
                                                             </Button>
+                                                            <Button variant="secondary" size="icon" className="w-10 h-10 rounded-full opacity-0 group-hover:opacity-100 transition-opacity translate-y-4 group-hover:translate-y-0 delay-100" onClick={() => { setIsEditing(true); setEditData({ type: 'tours', ...tour }); }}>
+                                                                <FileText className="w-4 h-4" />
+                                                            </Button>
                                                             <Button variant="destructive" size="icon" className="w-10 h-10 rounded-full opacity-0 group-hover:opacity-100 transition-opacity translate-y-4 group-hover:translate-y-0" onClick={() => handleDelete('tour', tour.id)}>
                                                                 <Trash2 className="w-4 h-4" />
                                                             </Button>
@@ -616,6 +696,102 @@ const AdminDashboard = () => {
                                                 </div>
                                             </div>
                                         ))}
+                                    </div>
+                                )}
+
+                                {activeView === 'applications' && (
+                                    <div className="p-10 space-y-12 bg-muted/5">
+                                        <div className="space-y-6">
+                                            <h3 className="text-3xl font-display font-black flex items-center gap-4">
+                                                <Compass className="w-8 h-8 text-nature" /> Pending Tour Experiences ({pendingTours.length})
+                                            </h3>
+                                            {pendingTours.length === 0 ? (
+                                                <div className="p-20 text-center bg-white/50 rounded-[3rem] border border-dashed border-border/50">
+                                                    <p className="font-black text-muted-foreground uppercase tracking-widest text-[10px] italic">No pending tours at the moment</p>
+                                                </div>
+                                            ) : (
+                                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                                    {pendingTours.map(tour => (
+                                                        <div key={tour.id} className="group relative bg-white dark:bg-card rounded-[2.5rem] border-2 border-nature/20 shadow-soft hover:shadow-premium transition-all overflow-hidden flex flex-col">
+                                                            <div className="h-48 w-full bg-muted/30 relative">
+                                                                <img src={resolveImage(tour.image || 'qutub-minar.png')} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={tour.title} />
+                                                                <div className="absolute top-4 left-4 px-3 py-1 bg-nature text-white text-[10px] font-black uppercase tracking-widest rounded-lg shadow-glow">Pending Approval</div>
+                                                            </div>
+                                                            <div className="p-8 space-y-6 flex-1 flex flex-col">
+                                                                <div className="space-y-2">
+                                                                    <h4 className="text-2xl font-display font-black leading-tight group-hover:text-nature transition-colors">{tour.title}</h4>
+                                                                    <p className="text-xs font-bold text-muted-foreground italic">By {tour.guideEmail || 'Independent Guide'}</p>
+                                                                </div>
+                                                                <div className="grid grid-cols-2 gap-4">
+                                                                    <div className="p-4 bg-muted/30 rounded-2xl">
+                                                                        <p className="text-[10px] uppercase font-black text-muted-foreground opacity-50 mb-1">Price</p>
+                                                                        <p className="font-black text-lg">₹{tour.price}</p>
+                                                                    </div>
+                                                                    <div className="p-4 bg-muted/30 rounded-2xl">
+                                                                        <p className="text-[10px] uppercase font-black text-muted-foreground opacity-50 mb-1">Location</p>
+                                                                        <p className="font-black text-lg">{tour.location}</p>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="flex gap-3 pt-2">
+                                                                    <Button className="flex-1 h-14 rounded-2xl bg-nature text-white font-black text-[10px] uppercase tracking-widest shadow-glow" onClick={() => approveApplication({ tourId: tour.id, email: tour.guideEmail, title: tour.title })}>
+                                                                        Authorize
+                                                                    </Button>
+                                                                    <Button variant="outline" size="icon" className="w-14 h-14 rounded-2xl border-2 border-destructive/20 text-destructive hover:bg-destructive hover:text-white" onClick={() => denyApplication({ tourId: tour.id, email: tour.guideEmail })}>
+                                                                        <Trash2 className="w-6 h-6" />
+                                                                    </Button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div className="space-y-6">
+                                            <h3 className="text-3xl font-display font-black flex items-center gap-4">
+                                                <Home className="w-8 h-8 text-secondary" /> Pending Property Listings ({pendingStays.length})
+                                            </h3>
+                                            {pendingStays.length === 0 ? (
+                                                <div className="p-20 text-center bg-white/50 rounded-[3rem] border border-dashed border-border/50">
+                                                    <p className="font-black text-muted-foreground uppercase tracking-widest text-[10px] italic">No pending properties at the moment</p>
+                                                </div>
+                                            ) : (
+                                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                                    {pendingStays.map(stay => (
+                                                        <div key={stay.id} className="group relative bg-white dark:bg-card rounded-[2.5rem] border-2 border-secondary/20 shadow-soft hover:shadow-premium transition-all overflow-hidden flex flex-col">
+                                                            <div className="h-48 w-full bg-muted/30 relative">
+                                                                <img src={resolveImage(stay.image || 'havelock-eco.png')} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={stay.title} />
+                                                                <div className="absolute top-4 left-4 px-3 py-1 bg-secondary text-white text-[10px] font-black uppercase tracking-widest rounded-lg shadow-glow">Pending Review</div>
+                                                            </div>
+                                                            <div className="p-8 space-y-6 flex-1 flex flex-col">
+                                                                <div className="space-y-2">
+                                                                    <h4 className="text-2xl font-display font-black leading-tight group-hover:text-secondary transition-colors">{stay.title}</h4>
+                                                                    <p className="text-xs font-bold text-muted-foreground italic">Host: {stay.host}</p>
+                                                                </div>
+                                                                <div className="grid grid-cols-2 gap-4">
+                                                                    <div className="p-4 bg-muted/30 rounded-2xl">
+                                                                        <p className="text-[10px] uppercase font-black text-muted-foreground opacity-50 mb-1">Per Night</p>
+                                                                        <p className="font-black text-lg">₹{stay.price}</p>
+                                                                    </div>
+                                                                    <div className="p-4 bg-muted/30 rounded-2xl">
+                                                                        <p className="text-[10px] uppercase font-black text-muted-foreground opacity-50 mb-1">Category</p>
+                                                                        <p className="font-black text-lg">{stay.category}</p>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="flex gap-3 pt-2">
+                                                                    <Button className="flex-1 h-14 rounded-2xl bg-secondary text-white font-black text-[10px] uppercase tracking-widest shadow-glow" onClick={() => approveApplication({ stayId: stay.id, email: stay.host, title: stay.title })}>
+                                                                        Authorize
+                                                                    </Button>
+                                                                    <Button variant="outline" size="icon" className="w-14 h-14 rounded-2xl border-2 border-destructive/20 text-destructive hover:bg-destructive hover:text-white" onClick={() => denyApplication({ stayId: stay.id, email: stay.host })}>
+                                                                        <Trash2 className="w-6 h-6" />
+                                                                    </Button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                 )}
                                 {activeView === 'support' && supportFeed.length === 0 && (
@@ -806,6 +982,78 @@ const AdminDashboard = () => {
                             <Button className="w-full h-18 rounded-2xl bg-foreground text-background font-black text-[10px] uppercase tracking-widest py-8" onClick={() => setDetailedItem(null)}>
                                 {t("closeView")}
                             </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* CRUD Edit/Create Modal */}
+            {isEditing && editData && (
+                <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/80 backdrop-blur-md p-6 animate-fade-in">
+                    <div className="bg-white dark:bg-card p-12 rounded-[3rem] w-full max-w-2xl shadow-premium border-2 border-border relative overflow-y-auto max-h-[90vh]">
+                        <div className="flex justify-between items-center mb-8">
+                            <h3 className="text-4xl font-display font-black capitalize">{editData.isNew ? 'Create New' : 'Edit'} {editData.type.replace(/s$/, '')}</h3>
+                            <button onClick={() => { setIsEditing(false); setEditData(null); }} className="p-3 bg-muted rounded-full hover:bg-destructive/10 hover:text-destructive transition-all">
+                                <X className="w-6 h-6" />
+                            </button>
+                        </div>
+                        <div className="space-y-6">
+                            {editData.type === 'tourists' && (
+                                <>
+                                    <div><label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-2">Name</label><input type="text" className="w-full mt-2 h-14 rounded-2xl bg-muted/30 border border-border px-6 font-medium" defaultValue={editData.fullName || editData.name} onChange={e => setEditData({...editData, name: e.target.value})} /></div>
+                                    <div><label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-2">Email</label><input type="email" className="w-full mt-2 h-14 rounded-2xl bg-muted/30 border border-border px-6 font-medium" defaultValue={editData.email} onChange={e => setEditData({...editData, email: e.target.value})} /></div>
+                                    <div><label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-2">Role</label>
+                                        <select className="w-full mt-2 h-14 rounded-2xl bg-muted/30 border border-border px-6 font-medium" defaultValue={editData.role || 'USER'} onChange={e => setEditData({...editData, role: e.target.value})}>
+                                            <option value="USER">USER</option>
+                                            <option value="GUIDE">GUIDE</option>
+                                            <option value="ADMIN">ADMIN</option>
+                                        </select>
+                                    </div>
+                                </>
+                            )}
+                            {editData.type === 'stays' && (
+                                <>
+                                    <div><label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-2">Title</label><input type="text" className="w-full mt-2 h-14 rounded-2xl bg-muted/30 border border-border px-6 font-medium" defaultValue={editData.title} onChange={e => setEditData({...editData, title: e.target.value})} /></div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div><label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-2">Location</label><input type="text" className="w-full mt-2 h-14 rounded-2xl bg-muted/30 border border-border px-6 font-medium" defaultValue={editData.location} onChange={e => setEditData({...editData, location: e.target.value})} /></div>
+                                        <div><label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-2">Price (₹)</label><input type="number" className="w-full mt-2 h-14 rounded-2xl bg-muted/30 border border-border px-6 font-medium" defaultValue={editData.price} onChange={e => setEditData({...editData, price: e.target.value})} /></div>
+                                    </div>
+                                    <div><label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-2">Host Email</label><input type="email" className="w-full mt-2 h-14 rounded-2xl bg-muted/30 border border-border px-6 font-medium" defaultValue={editData.host} onChange={e => setEditData({...editData, host: e.target.value})} /></div>
+                                </>
+                            )}
+                            {editData.type === 'tours' && (
+                                <>
+                                    <div><label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-2">Title</label><input type="text" className="w-full mt-2 h-14 rounded-2xl bg-muted/30 border border-border px-6 font-medium" defaultValue={editData.title} onChange={e => setEditData({...editData, title: e.target.value})} /></div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div><label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-2">Location</label><input type="text" className="w-full mt-2 h-14 rounded-2xl bg-muted/30 border border-border px-6 font-medium" defaultValue={editData.location} onChange={e => setEditData({...editData, location: e.target.value})} /></div>
+                                        <div><label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-2">Price (₹)</label><input type="number" className="w-full mt-2 h-14 rounded-2xl bg-muted/30 border border-border px-6 font-medium" defaultValue={editData.price} onChange={e => setEditData({...editData, price: e.target.value})} /></div>
+                                    </div>
+                                    <div><label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-2">Guide Email</label><input type="email" className="w-full mt-2 h-14 rounded-2xl bg-muted/30 border border-border px-6 font-medium" defaultValue={editData.guideEmail} onChange={e => setEditData({...editData, guideEmail: e.target.value})} /></div>
+                                </>
+                            )}
+                            <div className="pt-6">
+                                <Button className="w-full h-16 rounded-2xl bg-foreground text-background font-black text-[12px] uppercase tracking-widest shadow-glow" onClick={async () => {
+                                    try {
+                                        const endpoint = editData.type === 'tourists' ? '/api/users' : editData.type === 'stays' ? '/api/homestays' : '/api/attractions';
+                                        if (editData.isNew) {
+                                            const payload = { ...editData, approved: true }; // Admin bypasses approval queue
+                                            await apiClient.post(endpoint, payload);
+                                            toast({ title: "Created", description: `Successfully created new ${editData.type.replace(/s$/, '')}` });
+                                        } else {
+                                            const updateEndpoint = editData.type === 'tourists' ? `/api/users/${editData.email}` : `${endpoint}/${editData.id}`;
+                                            await apiClient.put(updateEndpoint, editData);
+                                            toast({ title: "Updated", description: `Successfully updated ${editData.type.replace(/s$/, '')}` });
+                                        }
+                                        setIsEditing(false);
+                                        setEditData(null);
+                                        // Need to trigger a refresh here ideally, but toast is enough for demo
+                                    } catch (err: any) {
+                                        toast({ title: "Error", description: err.message, variant: "destructive" });
+                                    }
+                                }}>
+                                    Save Changes
+                                </Button>
+                            </div>
                         </div>
                     </div>
                 </div>

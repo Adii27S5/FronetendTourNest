@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useAuth } from "@/hooks/useAuth";
@@ -17,6 +17,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useNotifications } from "@/hooks/useNotifications";
 
 const NavigationHeader = () => {
+    const navigate = useNavigate();
     const { user, signOut } = useAuth();
     const { t, userPreferences, updatePreferences } = useAppContext();
     const lang = userPreferences.language;
@@ -186,7 +187,12 @@ const NavigationHeader = () => {
                                     <div 
                                         key={n.id} 
                                         className={`p-4 border-b border-border/30 hover:bg-muted/30 transition-all cursor-pointer relative group ${!n.read ? 'bg-primary/[0.02]' : ''}`}
-                                        onClick={() => !n.read && markAsRead(n.id)}
+                                        onClick={() => {
+                                            if (!n.read) markAsRead(n.id);
+                                            if (userRole === 'ADMIN' && (n.message.includes('Pending Approval') || n.message.includes('New Tour Submission'))) {
+                                                navigate('/admin-dashboard?view=applications');
+                                            }
+                                        }}
                                     >
                                         <div className="flex gap-3">
                                             <div className={`mt-1 w-2 h-2 rounded-full shrink-0 ${
