@@ -13,10 +13,8 @@ Object.entries(allAssets).forEach(([path, module]) => {
 // Explicit Unsplash fallbacks or local aliases for missing assets
 const manualAliasMap: Record<string, string> = {
   // Unsplash Premium Fallbacks
-  'agra-stay.png': 'https://images.unsplash.com/photo-1548013146-72479768bbaa?auto=format&fit=crop&q=80&w=800',
   'agra-homestay.png': 'https://images.unsplash.com/photo-1548013146-72479768bbaa?auto=format&fit=crop&q=80&w=800',
   'delhi-haveli.png': 'https://images.unsplash.com/photo-1585129631248-1e43445cd867?auto=format&fit=crop&q=80&w=800',
-  'darjeeling-villa.png': 'https://images.unsplash.com/photo-1517330357046-3ab5a5dd42b1?auto=format&fit=crop&q=80&w=800',
   'bhopal-hotel.png': 'https://images.unsplash.com/photo-1599661559905-2423165b4c48?auto=format&fit=crop&q=80&w=800',
   'itc-grand-chola.png': 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&q=80&w=800',
   'andaman-beach.jpg': 'https://images.unsplash.com/photo-1589394815804-964ed9be2eb3?auto=format&fit=crop&q=80&w=800',
@@ -36,6 +34,8 @@ const manualAliasMap: Record<string, string> = {
   'havelock-eco.png': 'havelock-eco-new.png',
   'ladakh-lodge.png': 'ladakh-bikers.png',
   'ladakh-bikers.jpg': 'ladakh-bikers.png',
+  'agra-stay.png': 'taj-mahal-sunrise.png',
+  'darjeeling-villa.png': 'glenburn-tea.png',
   'manali-snow-stay.png': 'manali-cloud-9.png',
   'poha-jalebi.png': 'bhopal-food.png',
   'bedai-jalebi.png': 'chole-bhature.png',
