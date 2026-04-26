@@ -1,4 +1,6 @@
 import { API_BASE_URL } from '@/config/api';
+import glenburnTeaFallback from '../assets/glenburn-tea.png';
+import tajMahalFallback from '../assets/taj-mahal-sunrise.png';
 
 // Eagerly load all assets from the relative assets directory
 const allAssets: Record<string, any> = import.meta.glob('../assets/*.{png,jpg,jpeg,webp,svg}', { eager: true });
@@ -9,6 +11,10 @@ Object.entries(allAssets).forEach(([path, module]) => {
   const fileName = path.split('/').pop() || '';
   if (fileName) assetMap[fileName] = module.default;
 });
+
+// Explicitly inject problematic assets to bypass Vite glob caching
+assetMap['glenburn-tea.png'] = glenburnTeaFallback;
+assetMap['taj-mahal-sunrise.png'] = tajMahalFallback;
 
 // Explicit Unsplash fallbacks or local aliases for missing assets
 const manualAliasMap: Record<string, string> = {
