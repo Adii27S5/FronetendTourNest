@@ -36,6 +36,7 @@ const manualAliasMap: Record<string, string> = {
   'havelock-eco.png': 'havelock-eco-new.png',
   'darjeeling-villa.png': 'glenburn-tea.png',
   'ladakh-lodge.png': 'ladakh-bikers.png',
+  'ladakh-bikers.jpg': 'ladakh-bikers.png',
   'agra-stay.png': 'taj-mahal-sunrise.png',
   'munnar-mist.png': 'munnar-mist-premium.png',
   'manali-snow-stay.png': 'manali-cloud-9.png',
