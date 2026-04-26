@@ -269,8 +269,8 @@ const AttractionDetails = () => {
                             </div>
 
                             <div className="relative overflow-hidden group py-4 -mx-4 px-4 md:-mx-8 md:px-8">
-                                <div className="flex gap-8 min-w-full w-max animate-auto-scroll-x">
-                                    {nearbyAccommodations.length > 0 ? [...nearbyAccommodations, ...nearbyAccommodations].map((stay, index) => (
+                                <div className={`flex gap-8 min-w-full w-max ${nearbyAccommodations.length > 4 ? 'animate-auto-scroll-x' : ''}`}>
+                                    {nearbyAccommodations.length > 0 ? (nearbyAccommodations.length > 4 ? [...nearbyAccommodations, ...nearbyAccommodations] : nearbyAccommodations).map((stay, index) => (
                                         <div key={`${stay.id}-${index}`} className="w-[300px] shrink-0 h-full">
                                             <Card className="group rounded-[2.5rem] border-0 shadow-soft hover:shadow-premium transition-all overflow-hidden flex flex-col h-full">
                                                 <div className="h-48 overflow-hidden relative">
