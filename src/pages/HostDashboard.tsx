@@ -171,22 +171,24 @@ const HostDashboard = () => {
                   {listings.map((item) => (
                     <div key={item.id} className="group relative bg-white dark:bg-card rounded-[2rem] overflow-hidden shadow-soft hover:shadow-xl transition-all duration-300 border border-border/30">
                       {/* Image */}
-                      <div className="relative h-52 overflow-hidden">
-                        <img
-                          src={resolveImage(item.image)}
-                          alt={item.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                          loading="lazy"
-                        />
-                        {/* Status badge */}
-                        <div className={`absolute top-3 left-3 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest backdrop-blur-md ${
-                          item.approved ? 'bg-emerald-500/90 text-white' : 'bg-amber-500/90 text-white animate-pulse'
-                        }`}>
-                          {item.approved ? '● Live' : '⏳ Pending'}
+                      <Link to={`/homestay/${item.id}`}>
+                        <div className="relative h-52 overflow-hidden cursor-pointer group-hover:shadow-lg transition-shadow">
+                          <img
+                            src={resolveImage(item.image)}
+                            alt={item.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            loading="lazy"
+                          />
+                          {/* Status badge */}
+                          <div className={`absolute top-3 left-3 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest backdrop-blur-md ${
+                            item.approved ? 'bg-emerald-500/90 text-white shadow-glow' : 'bg-amber-500/90 text-white animate-pulse'
+                          }`}>
+                            {item.approved ? '● Live' : '⏳ Pending'}
+                          </div>
+                          {/* Gradient overlay */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                         </div>
-                        {/* Gradient overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                      </div>
+                      </Link>
 
                       {/* Content */}
                       <div className="p-5">
