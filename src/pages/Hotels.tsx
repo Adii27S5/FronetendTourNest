@@ -24,12 +24,16 @@ const Hotels: React.FC = () => {
   const { t } = useAppContext();
   const [searchParams] = useSearchParams();
   const initialLocation = searchParams.get('location') || '';
-  
   const [hotels, setHotels] = useState<Hotel[]>([]);
   const [newHotel, setNewHotel] = useState<Hotel>({ name: '', location: '', price: 0, rating: 0, image: '' });
   const [loading, setLoading] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState(initialLocation);
   const [showAddForm, setShowAddForm] = useState(false);
+
+  const filteredHotels = hotels.filter(h => 
+    h.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    h.location.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const fetchHotels = async () => {
     try {
@@ -47,6 +51,22 @@ const Hotels: React.FC = () => {
   useEffect(() => {
     fetchHotels();
   }, []);
+
+  // Smooth JS auto-scroll logic for slider
+  useEffect(() => {
+    const container = document.getElementById('hotels-main-slider');
+    if (!container) return;
+    
+    const interval = setInterval(() => {
+      if (container.scrollLeft + container.clientWidth >= container.scrollWidth - 10) {
+        container.scrollTo({ left: 0, behavior: 'smooth' });
+      } else {
+        container.scrollBy({ left: 350, behavior: 'smooth' });
+      }
+    }, 3500);
+
+    return () => clearInterval(interval);
+  }, [filteredHotels]);
 
   useEffect(() => {
     const locationParam = searchParams.get('location');
@@ -78,6 +98,13 @@ const Hotels: React.FC = () => {
     }
   };
 
+  const handleScroll = (direction: 'left' | 'right') => {
+    const container = document.getElementById('hotels-main-slider');
+    if (container) {
+      container.scrollBy({ left: direction === 'left' ? -400 : 400, behavior: 'smooth' });
+    }
+  };
+
   const handleDelete = async (id: number) => {
     try {
       await apiClient.delete(`/api/hotels/${id}`);
@@ -89,10 +116,7 @@ const Hotels: React.FC = () => {
     }
   };
 
-  const filteredHotels = hotels.filter(h => 
-    h.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    h.location.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+
 
   return (
     <div className="min-h-screen bg-muted/30 selection:bg-primary/20 font-sans">
@@ -174,8 +198,24 @@ const Hotels: React.FC = () => {
           )}
 
           <div className="relative overflow-hidden group py-4 -mx-4 px-4 md:-mx-12 md:px-12 animate-fade-in delay-200">
-            <div className="flex gap-10 min-w-full w-max animate-auto-scroll-x">
-              {[...filteredHotels, ...filteredHotels].map((hotel, index) => (
+            {filteredHotels.length > 4 && (
+              <>
+                <button 
+                  onClick={() => handleScroll('left')}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-14 h-14 bg-white/80 dark:bg-card/80 backdrop-blur-xl border border-border/50 rounded-full flex items-center justify-center shadow-premium opacity-0 group-hover:opacity-100 transition-all hover:scale-110 hover:bg-white text-foreground hover:text-secondary"
+                >
+                  <ChevronLeft className="w-6 h-6" />
+                </button>
+                <button 
+                  onClick={() => handleScroll('right')}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-14 h-14 bg-white/80 dark:bg-card/80 backdrop-blur-xl border border-border/50 rounded-full flex items-center justify-center shadow-premium opacity-0 group-hover:opacity-100 transition-all hover:scale-110 hover:bg-white text-foreground hover:text-secondary"
+                >
+                  <ChevronRight className="w-6 h-6" />
+                </button>
+              </>
+            )}
+            <div id="hotels-main-slider" className="flex gap-10 overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar pb-8">
+              {filteredHotels.map((hotel, index) => (
                 <motion.div
                   key={`${hotel.id}-${index}`}
                   initial={{ opacity: 0, y: 20 }}

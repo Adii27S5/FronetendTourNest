@@ -8,7 +8,7 @@
   :root {
     /* Base colors - premium ivory tones */
     --background: 40 100% 98%;
-    --foreground: 220 25% 12%;
+    --foreground: 20 50% 15%; /* Deeper, warmer dark brown/charcoal for bright background */
     
     /* Cultural background pattern (subtle orange/yellow motif) */
     --cultural-pattern: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23f59e0b' fill-opacity='0.08'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
@@ -37,9 +37,9 @@
     /* #128807 Green */
     --nature-foreground: 0 0% 100%;
 
-    /* Muted tones - elegant grays */
-    --muted: 220 20% 96%;
-    --muted-foreground: 220 10% 45%;
+    /* Muted tones - elegant grays, tinted warm for the new background */
+    --muted: 30 20% 96%;
+    --muted-foreground: 30 30% 40%;
 
     /* Accent - Saffron Glow */
     --accent: 32 100% 90%;
@@ -74,76 +74,61 @@
     --radius: 1.5rem;
   }
 
-  .dark {
-    /* Dark theme - Charcoal and Deep Navy */
-    --background: 226 50% 5%;
-    --foreground: 0 0% 98%;
-    --cultural-pattern: none;
+  /* Cleaned up :root inside @layer base */
+}
 
-    --card: 226 40% 10%;
-    --card-foreground: 0 0% 98%;
+html {
+  /* Vibrant, bright, warm saffron-peach gradient */
+  background: linear-gradient(135deg, #FFF3E0, #FFE0B2, #FFCC80);
+  min-height: 100vh;
+}
 
-    --popover: 226 40% 10%;
-    --popover-foreground: 0 0% 98%;
+.dark {
+  /* Dark theme - Charcoal and Deep Navy */
+  --background: 226 50% 5%;
+  --foreground: 0 0% 98%;
+  --cultural-pattern: none;
+  --card: 226 40% 10%;
+  --card-foreground: 0 0% 98%;
+  --popover: 226 40% 10%;
+  --popover-foreground: 0 0% 98%;
+  --primary: 32 100% 60%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 125 80% 35%;
+  --secondary-foreground: 0 0% 100%;
+  --muted: 226 30% 15%;
+  --muted-foreground: 226 10% 65%;
+  --accent: 226 100% 25%;
+  --accent-foreground: 0 0% 100%;
+  --border: 226 20% 20%;
+  --input: 226 20% 18%;
+  --ring: 32 100% 60%;
+  --shadow-soft: 0 4px 20px hsl(0 0% 0% / 0.5);
+  --shadow-premium: 0 20px 60px hsl(0 0% 0% / 0.7);
+  --shadow-glow: 0 0 40px hsl(32 100% 60% / 0.3);
+}
 
-    --primary: 32 100% 60%;
-    /* Saffron pop in dark */
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 125 80% 35%;
-    /* Green accent */
-    --secondary-foreground: 0 0% 100%;
-
-    --muted: 226 30% 15%;
-    --muted-foreground: 226 10% 65%;
-
-    --accent: 226 100% 25%;
-    --accent-foreground: 0 0% 100%;
-
-    --border: 226 20% 20%;
-    --input: 226 20% 18%;
-    --ring: 32 100% 60%;
-
-    --shadow-soft: 0 4px 20px hsl(0 0% 0% / 0.5);
-    --shadow-premium: 0 20px 60px hsl(0 0% 0% / 0.7);
-    --shadow-glow: 0 0 40px hsl(32 100% 60% / 0.3);
-  }
-
-  .hybrid {
-    /* Hybrid theme - Deep Navy/Slate with vibrant contrasts */
-    --background: 226 60% 8%;
-    --foreground: 0 0% 98%;
-    --cultural-pattern: none;
-
-    /* Glassy cards that stand out */
-    --card: 226 50% 12%;
-    --card-foreground: 0 0% 98%;
-
-    --popover: 226 50% 12%;
-    --popover-foreground: 0 0% 98%;
-
-    /* Super vibrant Saffron/Orange for primary actions */
-    --primary: 32 100% 55%;
-    --primary-foreground: 0 0% 10%;
-
-    /* Vibrant Purple/Pink mix for secondary */
-    --secondary: 270 100% 65%;
-    --secondary-foreground: 0 0% 100%;
-
-    --muted: 226 40% 20%;
-    --muted-foreground: 226 20% 75%;
-
-    --accent: 180 100% 40%; /* Cyan accent */
-    --accent-foreground: 0 0% 10%;
-
-    --border: 226 40% 25%;
-    --input: 226 40% 20%;
-    --ring: 180 100% 40%;
-
-    --shadow-soft: 0 8px 30px hsl(0 0% 0% / 0.6);
-    --shadow-premium: 0 20px 80px hsl(270 100% 50% / 0.15);
-    --shadow-glow: 0 0 50px hsl(32 100% 55% / 0.4);
-  }
+.hybrid {
+  --background: 226 60% 8%;
+  --foreground: 210 20% 98%;
+  --card: 226 50% 12%;
+  --card-foreground: 210 20% 98%;
+  --popover: 226 60% 10%;
+  --popover-foreground: 210 20% 98%;
+  --primary: 180 100% 40%;
+  --primary-foreground: 0 0% 10%;
+  --secondary: 270 100% 60%;
+  --secondary-foreground: 0 0% 100%;
+  --muted: 226 40% 20%;
+  --muted-foreground: 226 20% 75%;
+  --accent: 180 100% 40%;
+  --accent-foreground: 0 0% 10%;
+  --border: 226 40% 25%;
+  --input: 226 40% 20%;
+  --ring: 180 100% 40%;
+  --shadow-soft: 0 8px 30px hsl(0 0% 0% / 0.6);
+  --shadow-premium: 0 20px 80px hsl(270 100% 50% / 0.15);
+  --shadow-glow: 0 0 50px hsl(32 100% 55% / 0.4);
 }
 
 @layer base {
@@ -152,10 +137,49 @@
   }
 
   body {
-    @apply bg-background text-foreground font-sans antialiased;
-    background-image: var(--cultural-pattern);
-    background-attachment: fixed;
+    @apply bg-transparent text-foreground font-sans antialiased;
+    position: relative;
+    overflow-x: hidden;
   }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-image: url('./assets/dark-outline-bg.png');
+    background-size: cover;
+    background-position: center bottom;
+    background-repeat: no-repeat;
+    opacity: 0.35;
+    z-index: -1;
+    pointer-events: none;
+  }
+}
+
+/* Ensure sections allow background to show through */
+section, .bg-background, .bg-white {
+  background-color: transparent !important;
+}
+
+/* Add a subtle glass effect to cards so they are readable over the monuments */
+.bg-card, .bg-white {
+  @apply backdrop-blur-xl bg-white/30 dark:bg-black/30 border-white/20 shadow-premium;
+}
+
+/* Fill "left over" space with a creative gradient fade at the bottom of the page */
+body::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 400px;
+  background: linear-gradient(to top, #ff993333, transparent);
+  pointer-events: none;
+  z-index: -1;
 }
 
 /* Custom Utilities for Tricolor Theme */
@@ -256,11 +280,20 @@
   }
 
   .animate-auto-scroll-x {
-    animation: auto-scroll-x 40s linear infinite;
+    animation: auto-scroll-x 80s linear infinite;
   }
 
   .animate-auto-scroll-x:hover {
     animation-play-state: paused;
+  }
+
+  /* Hide Scrollbar Utility */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none !important;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none !important;
+    scrollbar-width: none !important;
   }
 
   .cursor-active {

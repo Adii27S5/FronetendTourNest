@@ -5,7 +5,7 @@ import HomestayCard from '@/components/HomestayCard';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useDebounce } from '@/hooks/useDebounce';
-import { Search, Sparkles, MapPin, Loader2, X } from 'lucide-react';
+import { Search, Sparkles, MapPin, Loader2, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { API_BASE_URL } from '@/config/api';
 import { useAppContext } from '@/contexts/AppContext';
 
@@ -122,7 +122,7 @@ const Homestays = () => {
             </div>
 
           <div className="flex flex-wrap items-center gap-4 mb-14 animate-slide-up delay-100">
-            {['all', 'Heritage', 'Beach', 'Mountain', 'Nature'].map(filter => (
+            {['all', 'Heritage', 'Beach', 'Snow', 'Nature'].map(filter => (
               <button
                 key={filter}
                 onClick={() => {
@@ -139,16 +139,43 @@ const Homestays = () => {
             ))}
           </div>
 
-          <div className="relative overflow-hidden group py-4 -mx-4 px-4 md:-mx-12 md:px-12">
-            <div className="flex gap-10 min-w-full w-max animate-auto-scroll-x">
-              {[...filteredHomestays, ...filteredHomestays].map((stay, index) => (
-                <div key={`${stay.id}-${index}`} className="w-[300px] md:w-[400px] shrink-0">
-                  <Link to={`/homestay/${stay.id}`} className="block hover:scale-[1.02] transition-transform h-full">
-                    <HomestayCard {...stay} />
-                  </Link>
-                </div>
-              ))}
-            </div>
+          <div className="space-y-24 animate-fade-in delay-200">
+            {(selectedFilter === 'all' ? ['Heritage', 'Beach', 'Snow', 'Nature'] : [selectedFilter]).map(category => {
+              // We use homestays directly here and only apply the search filter and the current loop category
+              const categoryHomestays = homestays.filter(stay => {
+                const matchesSearch = stay.title.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+                  stay.location.toLowerCase().includes(debouncedSearch.toLowerCase());
+                return matchesSearch && stay.category === category;
+              });
+
+              if (categoryHomestays.length === 0) return null;
+
+              return (
+                <div key={category} className="space-y-8">
+                  <div className="flex items-center justify-between gap-6">
+                    <div className="flex items-center gap-6 flex-1">
+                      <h2 className="text-3xl md:text-5xl font-display font-black text-foreground">{getFilterLabel(category)}</h2>
+                      <div className="h-[2px] flex-1 bg-secondary/20 rounded-full"></div>
+                    </div>
+                  </div>
+                    <div className="relative overflow-hidden w-full max-w-[2000px] mx-auto py-4">
+                      <div className="overflow-hidden w-full relative -mx-4 px-4 md:-mx-12 md:px-12">
+                        <div 
+                          className={`flex gap-10 w-max ${categoryHomestays.length <= 4 ? 'justify-start' : 'min-w-full animate-auto-scroll-x hover:[animation-play-state:paused]'}`}
+                          style={{ animationDuration: categoryHomestays.length <= 4 ? 'unset' : `${Array(10).fill(categoryHomestays).flat().length * 3}s` }}
+                        >
+                          {(categoryHomestays.length <= 4 ? categoryHomestays : Array(10).fill(categoryHomestays).flat()).map((stay, index) => (
+                            <div key={`${stay.id}-${index}`} className="w-[300px] md:w-[400px] shrink-0 h-full snap-center">
+                              <Link to={`/homestay/${stay.id}`} className="block hover:scale-[1.02] transition-transform h-full">
+                                <HomestayCard {...stay} />
+                              </Link>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div></div>
+              );
+            })}
           </div>
 
           {loading ? (

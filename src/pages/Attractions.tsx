@@ -5,7 +5,7 @@ import AttractionCard from '@/components/AttractionCard';
 import { API_BASE_URL } from "@/config/api";
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search, Compass, MapPin, Sparkles } from 'lucide-react';
+import { Search, Compass, MapPin, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useAppContext } from '@/contexts/AppContext';
 import { toast } from 'sonner';
 
@@ -21,8 +21,6 @@ const Attractions = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [attractions, setAttractions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-
-
 
   const fetchAttractions = async () => {
     try {
@@ -46,6 +44,7 @@ const Attractions = () => {
   };
 
   const [searchParams] = useSearchParams();
+  const locationFilter = searchParams.get('location');
 
   useEffect(() => {
     fetchAttractions();
@@ -125,14 +124,36 @@ const Attractions = () => {
             </div>
           </div>
 
-          <div className="relative overflow-hidden group py-4 -mx-4 px-4 md:-mx-12 md:px-12 animate-fade-in delay-200">
-            <div className="flex gap-10 min-w-full w-max animate-auto-scroll-x">
-              {[...filteredAttractions, ...filteredAttractions].map((attraction, index) => (
-                <div key={`${attraction.id}-${index}`} className="w-[300px] md:w-[400px] shrink-0 h-full">
-                  <AttractionCard {...attraction} />
+          <div className="space-y-24 animate-fade-in delay-200">
+            {(selectedCategory === 'all' ? categories.filter(c => c !== 'all') : [selectedCategory]).map(category => {
+              const categoryAttractions = filteredAttractions.filter(a => a.category === category);
+              if (categoryAttractions.length === 0) return null;
+
+              return (
+                <div key={category} className="space-y-8">
+                  <div className="flex items-center justify-between gap-6">
+                    <div className="flex items-center gap-6 flex-1">
+                      <h2 className="text-3xl md:text-5xl font-display font-black text-foreground">{getCategoryLabel(category)}</h2>
+                      <div className="h-[2px] flex-1 bg-secondary/20 rounded-full"></div>
+                    </div>
+                  </div>
+                    <div className="relative overflow-hidden w-full max-w-[2000px] mx-auto py-4">
+                      <div className="overflow-hidden w-full relative -mx-4 px-4 md:-mx-12 md:px-12">
+                        <div 
+                          className={`flex gap-10 w-max ${categoryAttractions.length <= 4 ? 'justify-start' : 'min-w-full animate-auto-scroll-x hover:[animation-play-state:paused]'}`}
+                          style={{ animationDuration: categoryAttractions.length <= 4 ? 'unset' : `${Array(10).fill(categoryAttractions).flat().length * 3}s` }}
+                        >
+                          {(categoryAttractions.length <= 4 ? categoryAttractions : Array(10).fill(categoryAttractions).flat()).map((attraction, index) => (
+                            <div key={`${attraction.id}-${index}`} className="w-[300px] md:w-[400px] shrink-0 h-full snap-center">
+                              <AttractionCard {...attraction} />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
                 </div>
-              ))}
-            </div>
+              );
+            })}
           </div>
 
           {filteredAttractions.length === 0 && (

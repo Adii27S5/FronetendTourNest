@@ -86,7 +86,7 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
       fontFamily: {
-        'sans': ['Inter', 'sans-serif'],
+        'sans': ['Outfit', 'sans-serif'],
         'display': ['Playfair Display', 'serif'],
       },
       backgroundImage: {

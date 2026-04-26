@@ -10,8 +10,9 @@ import AttractionCard from "@/components/AttractionCard";
 import StatsSection from "@/components/StatsSection";
 import DestinationsSection from "@/components/DestinationsSection";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Sparkles, Star, MapPin, Heart, Globe, Home } from "lucide-react";
+import { ArrowRight, Sparkles, Star, MapPin, Heart, Globe, Home, ChevronLeft, ChevronRight } from "lucide-react";
 import { useAppContext } from "@/contexts/AppContext";
+import Footer from "@/components/Footer";
 
 // India Assets
 import manaliSnow from "@/assets/manali-snow.jpg";
@@ -28,6 +29,9 @@ const Index = () => {
   const [featuredStays, setFeaturedStays] = useState<any[]>([]);
   const [mustVisits, setMustVisits] = useState<any[]>([]);
   const [featuredHotels, setFeaturedHotels] = useState<any[]>([]);
+
+  const repeatedStays = featuredStays.length <= 4 ? featuredStays : Array(10).fill(featuredStays).flat();
+  const repeatedHotels = featuredHotels.length <= 4 ? featuredHotels : Array(10).fill(featuredHotels).flat();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -68,32 +72,39 @@ const Index = () => {
       {/* Featured Homestays Section */}
       <section className="py-24 px-4 bg-white dark:bg-card/30 relative">
         <div className="container mx-auto">
-          <div className="text-center mb-12 space-y-4 animate-fade-in">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-secondary/5 rounded-full">
-              <Sparkles className="w-4 h-4 text-secondary" />
-              <span className="text-secondary font-black uppercase tracking-[0.2em] text-[10px]">{t("premiumCurations")}</span>
-            </div>
-            <h2 className="text-5xl md:text-7xl font-display font-black tracking-tighter text-foreground leading-[0.85]">
-              Heritage <span className="text-secondary italic">Stays</span>
-            </h2>
-            <p className="text-xl text-muted-foreground max-w-xl mx-auto font-medium">
-              {t("staysSubtitle")}
-            </p>
-          </div>
-
-          <div className="relative overflow-hidden group py-4 -mx-4 px-4 md:-mx-12 md:px-12">
-            <div className="flex gap-8 min-w-full w-max animate-auto-scroll-x">
-              {[...featuredStays, ...featuredStays].map((stay, index) => (
-                <div key={`${stay.id}-${index}`} className="w-[300px] md:w-[400px] shrink-0">
-                  <Link to={`/homestay/${stay.id}`} className="block hover:-translate-y-1 transition-transform duration-200 h-full">
-                    <HomestayCard {...stay} />
-                  </Link>
-                </div>
-              ))}
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 animate-fade-in">
+            <div className="space-y-4">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-secondary/5 rounded-full">
+                <Sparkles className="w-4 h-4 text-secondary" />
+                <span className="text-secondary font-black uppercase tracking-[0.2em] text-[10px]">{t("premiumCurations")}</span>
+              </div>
+              <h2 className="text-5xl md:text-7xl font-display font-black tracking-tighter text-foreground leading-[0.85]">
+                Heritage <span className="text-secondary italic">Stays</span>
+              </h2>
+              <p className="text-xl text-muted-foreground max-w-xl font-medium">
+                {t("staysSubtitle")}
+              </p>
             </div>
           </div>
 
-          <div className="mt-14 text-center">
+          <div className="relative overflow-hidden w-full max-w-[2000px] mx-auto py-8">
+            <div className="overflow-hidden w-full relative">
+              <div 
+                className={`flex gap-10 w-max ${repeatedStays.length <= 4 ? 'justify-start' : 'animate-auto-scroll-x hover:[animation-play-state:paused]'} px-4 md:px-12`}
+                style={{ animationDuration: repeatedStays.length <= 4 ? 'unset' : `${repeatedStays.length * 3}s` }}
+              >
+                {repeatedStays.map((stay, index) => (
+                  <div key={`${stay.id}-${index}`} className="w-[300px] md:w-[400px] shrink-0 snap-center">
+                    <Link to={`/homestay/${stay.id}`} className="block hover:-translate-y-1 transition-transform duration-200 h-full">
+                      <HomestayCard {...stay} />
+                    </Link>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-8 text-center">
             <Link to="/homestays">
               <Button size="lg" className="h-14 px-10 rounded-2xl bg-foreground text-background font-black hover:bg-secondary hover:text-white transition-colors shadow-xl group">
                 {t("exploreMore")}
@@ -107,29 +118,36 @@ const Index = () => {
       {/* Premium Hotels Section */}
       <section className="py-24 px-4 bg-muted/20 relative">
         <div className="container mx-auto">
-          <div className="text-center mb-12 space-y-4 animate-fade-in">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-primary/5 rounded-full">
-              <Sparkles className="w-4 h-4 text-primary" />
-              <span className="text-primary font-black uppercase tracking-[0.2em] text-[10px]">{t("luxuryLabel")}</span>
-            </div>
-            <h2 className="text-5xl md:text-7xl font-display font-black tracking-tighter text-foreground leading-[0.85]">
-              Grand <span className="text-primary italic">{t("hotelsLabel")}</span>
-            </h2>
-          </div>
-
-          <div className="relative overflow-hidden group py-4 -mx-4 px-4 md:-mx-12 md:px-12">
-            <div className="flex gap-8 min-w-full w-max animate-auto-scroll-x">
-              {[...featuredHotels, ...featuredHotels].map((hotel, index) => (
-                <div key={`${hotel.id}-${index}`} className="w-[300px] md:w-[400px] shrink-0 h-full">
-                  <Link to={`/hotel/${hotel.id}`} className="block hover:-translate-y-1 transition-transform duration-200 h-full">
-                    <HotelCard {...hotel} />
-                  </Link>
-                </div>
-              ))}
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 animate-fade-in">
+            <div className="space-y-4">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-primary/5 rounded-full">
+                <Sparkles className="w-4 h-4 text-primary" />
+                <span className="text-primary font-black uppercase tracking-[0.2em] text-[10px]">{t("luxuryLabel")}</span>
+              </div>
+              <h2 className="text-5xl md:text-7xl font-display font-black tracking-tighter text-foreground leading-[0.85]">
+                Grand <span className="text-primary italic">{t("hotelsLabel")}</span>
+              </h2>
             </div>
           </div>
 
-          <div className="mt-14 text-center">
+          <div className="relative overflow-hidden w-full max-w-[2000px] mx-auto py-8">
+            <div className="overflow-hidden w-full relative">
+              <div 
+                className={`flex gap-8 w-max ${repeatedHotels.length <= 4 ? 'justify-start' : 'animate-auto-scroll-x hover:[animation-play-state:paused]'} px-4 md:px-12`}
+                style={{ animationDuration: repeatedHotels.length <= 4 ? 'unset' : `${repeatedHotels.length * 3}s` }}
+              >
+                {repeatedHotels.map((hotel, index) => (
+                  <div key={`${hotel.id}-${index}`} className="w-[300px] md:w-[400px] shrink-0 h-full snap-center">
+                    <Link to={`/hotel/${hotel.id}`} className="block hover:-translate-y-1 transition-transform duration-200 h-full">
+                      <HotelCard {...hotel} />
+                    </Link>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-8 text-center">
             <Link to="/hotels">
               <Button size="lg" className="h-14 px-10 rounded-2xl bg-foreground text-background font-black hover:bg-primary hover:text-white transition-colors shadow-xl group">
                 {t("viewAllHotels")}

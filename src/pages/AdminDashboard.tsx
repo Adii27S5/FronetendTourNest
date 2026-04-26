@@ -10,11 +10,12 @@ import {
 } from "lucide-react";
 import { 
     Ticket, MessageSquare, History, Phone, Mail, Eye,
-    TrendingUp, Award, UserCheck, ThumbsUp 
+    TrendingUp, Award, UserCheck, ThumbsUp, MapPin
 } from "lucide-react";
 import apiClient from '@/config/axios';
 import { useToast } from "@/hooks/use-toast";
 import { useAppContext } from "@/contexts/AppContext";
+import { resolveImage } from "@/lib/image-mapper";
 
 const AdminDashboard = () => {
     const { toast } = useToast();
@@ -395,6 +396,7 @@ const AdminDashboard = () => {
                                         <input type="text" placeholder={`${t('search')} in ${activeView}...`} className="w-full pl-16 h-16 rounded-3xl bg-white border-2 border-transparent focus:border-secondary transition-all outline-none font-bold shadow-soft" />
                                     </div>
                                 </div>
+                                {['tourists', 'bookings', 'reviews', 'support', 'inbox'].includes(activeView) && (
                                 <div className="overflow-x-auto">
                                     <table className="w-full text-left">
                                         <thead>
@@ -418,11 +420,18 @@ const AdminDashboard = () => {
                                                             </div>
                                                         </div>
                                                     </td>
-                                                    <td className="p-10">
-                                                        <div className="flex items-center gap-4 text-sm font-black text-muted-foreground">                                                             <div className="px-3 py-1 bg-muted/50 rounded-lg">{t('joinedLabel')}: {tourist.joined || '—'}</div>
-                                                             <Button variant="ghost" className="px-3 py-1 bg-secondary/10 text-secondary rounded-lg italic hover:bg-secondary/20" onClick={() => setDetailedItem({ type: 'user_bookings', data: { user: tourist.name, email: tourist.email } })}>
-                                                                 {t('viewBookings')} ({tourist.bookingsCount || 0}) <ArrowUpRight className="w-3 h-3 ml-2" />
-                                                             </Button>
+                                                    <td className="p-10">                                                         
+                                                        <div className="flex flex-col gap-2">
+                                                            <div className="flex items-center gap-4 text-sm font-black text-muted-foreground">                                                             
+                                                                <div className="px-3 py-1 bg-muted/50 rounded-lg">{t('joinedLabel')}: {tourist.joined || '—'}</div>
+                                                                <div className={`px-3 py-1 rounded-lg ${tourist.role === 'ADMIN' ? 'bg-secondary/20 text-secondary' : tourist.role === 'GUIDE' ? 'bg-nature/20 text-nature' : 'bg-primary/20 text-primary'}`}>Role: {tourist.role || 'USER'}</div>
+                                                            </div>
+                                                            <div className="text-xs font-bold text-muted-foreground/80">
+                                                                Tours Posted: {tours.filter(t => t.guideEmail === tourist.email).length} | Foods Posted: 0
+                                                            </div>
+                                                            <Button variant="ghost" className="w-fit mt-2 px-3 py-1 bg-secondary/10 text-secondary rounded-lg italic hover:bg-secondary/20" onClick={() => setDetailedItem({ type: 'user_activity', data: { user: tourist.name, email: tourist.email } })}>
+                                                                View Activity <ArrowUpRight className="w-3 h-3 ml-2" />
+                                                            </Button>
                                                         </div>
                                                     </td>
                                                     <td className="p-10 text-center">
@@ -432,35 +441,7 @@ const AdminDashboard = () => {
                                                     </td>
                                                 </tr>
                                             ))}
-                                            {activeView === 'stays' && stays.map(stay => (
-                                                <tr key={stay.id} className="hover:bg-muted/5 transition-colors group">
-                                                    <td className="p-10">
-                                                        <div className="flex items-center gap-6">
-                                                            <div className="w-16 h-16 rounded-[1.5rem] bg-secondary/10 flex items-center justify-center text-secondary border-2 border-secondary/20">
-                                                                <Home className="w-8 h-8" />
-                                                            </div>
-                                                            <div className="space-y-1">
-                                                                 <div className="font-black text-2xl group-hover:text-secondary transition-colors">{stay.title}</div>
-                                                                 <div className="text-sm font-bold text-muted-foreground opacity-70 italic font-sans">{t('hostedBy')} {stay.host?.split('@')[0] || "Owner"}</div>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="p-10">
-                                                        <div className="flex items-center gap-4 text-sm font-black text-muted-foreground">
-                                                            <div className="px-3 py-1 bg-muted/50 rounded-lg">{stay.location}</div>
-                                                            <div className="px-3 py-1 bg-nature/10 text-nature rounded-lg">{stay.price} / night</div>
-                                                            <Button variant="ghost" className="px-3 py-1 bg-secondary/10 text-secondary rounded-lg" onClick={() => setDetailedItem({ type: 'stay_reviews', data: stay })}>
-                                                                 {t('reviewsLabel')} <Award className="w-3 h-3 ml-2 fill-current" />
-                                                             </Button>
-                                                         </div>
-                                                     </td>
-                                                    <td className="p-10 text-center">
-                                                        <Button variant="ghost" className="w-14 h-14 rounded-2xl text-destructive hover:bg-destructive/10" onClick={() => handleDelete('stay', stay.id)}>
-                                                            <Trash2 className="w-7 h-7" />
-                                                        </Button>
-                                                    </td>
-                                                </tr>
-                                            ))}
+
                                             {activeView === 'bookings' && bookings.map(booking => (
                                                 <tr key={booking.id} className="hover:bg-muted/5 transition-colors group">
                                                     <td className="p-10">
@@ -493,39 +474,7 @@ const AdminDashboard = () => {
                                                     </td>
                                                 </tr>
                                             ))}
-                                             {activeView === 'tours' && tours.length === 0 && (
-                                                <tr><td colSpan={3} className="p-16 text-center">
-                                                    <Compass className="w-10 h-10 text-muted-foreground/20 mx-auto mb-3" />
-                                                    <p className="font-black text-muted-foreground uppercase tracking-widest text-[10px]">No approved tours yet — approve pending ones from Overview.</p>
-                                                </td></tr>
-                                            )}
-                                             {activeView === 'tours' && tours.map(tour => (
-                                                <tr key={tour.id} className="hover:bg-muted/5 transition-colors group">
-                                                    <td className="p-10">
-                                                        <div className="flex items-center gap-6">
-                                                            <div className="w-16 h-16 rounded-[1.5rem] bg-nature/10 flex items-center justify-center text-nature border-2 border-nature/20">
-                                                                <Compass className="w-8 h-8" />
-                                                            </div>
-                                                            <div className="space-y-1">
-                                                                <div className="font-black text-2xl group-hover:text-secondary transition-colors">{tour.title}</div>
-                                                                <div className="text-sm font-bold text-muted-foreground opacity-70 italic font-sans">{tour.category} Specialist</div>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="p-10">
-                                                        <div className="flex items-center gap-4 text-sm font-black text-muted-foreground">
-                                                            <div className="px-3 py-1 bg-muted/50 rounded-lg">{tour.location}</div>
-                                                            <div className="px-3 py-1 bg-primary/10 text-primary rounded-lg">₹{tour.price}</div>
-                                                            <div className="px-3 py-1 bg-secondary/10 text-secondary rounded-lg italic font-sans">{tour.duration}</div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="p-10 text-center">
-                                                        <Button variant="ghost" className="w-14 h-14 rounded-2xl text-destructive hover:bg-destructive/10" onClick={() => handleDelete('tour', tour.id)}>
-                                                            <Trash2 className="w-7 h-7" />
-                                                        </Button>
-                                                    </td>
-                                                </tr>
-                                            ))}
+
                                             {activeView === 'support' && supportMessages.map(msg => (
                                                 <tr key={msg.id} className="hover:bg-muted/5 transition-colors group">
                                                     <td className="p-10">
@@ -581,6 +530,85 @@ const AdminDashboard = () => {
                                         </tbody>
                                     </table>
                                 </div>
+                                )}
+                                
+                                {/* New CSS Grid Layout for Stays and Tours */}
+                                {activeView === 'stays' && (
+                                    <div className="p-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 bg-muted/5">
+                                        {stays.map(stay => (
+                                            <div key={stay.id} className="group relative bg-white dark:bg-card rounded-[2rem] border border-border/50 shadow-soft hover:shadow-premium transition-all duration-300 hover:-translate-y-2 overflow-hidden flex flex-col">
+                                                <div className="h-48 w-full bg-muted/30 relative overflow-hidden">
+                                                    <img src={resolveImage(stay.image || 'havelock-eco.png')} alt={stay.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                                                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                                                    <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end">
+                                                        <span className="text-white font-black text-xl leading-tight drop-shadow-md">{stay.title}</span>
+                                                        <div className="flex gap-2">
+                                                            <Button variant="secondary" size="icon" className="w-10 h-10 rounded-full opacity-0 group-hover:opacity-100 transition-opacity translate-y-4 group-hover:translate-y-0 delay-75" onClick={() => setDetailedItem({ type: 'stay_reviews', data: stay })}>
+                                                                <Eye className="w-4 h-4" />
+                                                            </Button>
+                                                            <Button variant="destructive" size="icon" className="w-10 h-10 rounded-full opacity-0 group-hover:opacity-100 transition-opacity translate-y-4 group-hover:translate-y-0" onClick={() => handleDelete('stay', stay.id)}>
+                                                                <Trash2 className="w-4 h-4" />
+                                                            </Button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="p-6 space-y-4 flex-1 flex flex-col justify-between">
+                                                    <div className="space-y-2">
+                                                        <div className="flex items-center gap-2 text-sm font-bold text-muted-foreground uppercase tracking-widest">
+                                                            <Home className="w-4 h-4 text-secondary" /> {stay.category}
+                                                        </div>
+                                                        <p className="text-sm text-foreground/80 font-medium italic line-clamp-2">"{stay.description}"</p>
+                                                    </div>
+                                                    <div className="flex items-center justify-between pt-4 border-t border-border/50">
+                                                        <span className="font-black text-secondary">{stay.price}/night</span>
+                                                        <div className="flex items-center gap-1 text-sm font-bold">
+                                                            <Award className="w-4 h-4 text-gold fill-gold" /> {stay.rating}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                                
+                                {activeView === 'tours' && (
+                                    <div className="p-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 bg-muted/5">
+                                        {tours.map(tour => (
+                                            <div key={tour.id} className="group relative bg-white dark:bg-card rounded-[2rem] border border-border/50 shadow-soft hover:shadow-premium transition-all duration-300 hover:-translate-y-2 overflow-hidden flex flex-col">
+                                                <div className="h-48 w-full bg-muted/30 relative overflow-hidden">
+                                                    <img src={resolveImage(tour.image || 'qutub-minar.png')} alt={tour.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                                                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                                                    <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end">
+                                                        <span className="text-white font-black text-xl leading-tight drop-shadow-md">{tour.title}</span>
+                                                        <div className="flex gap-2">
+                                                            <Button variant="secondary" size="icon" className="w-10 h-10 rounded-full opacity-0 group-hover:opacity-100 transition-opacity translate-y-4 group-hover:translate-y-0 delay-75" onClick={() => setDetailedItem({ type: 'stay_reviews', data: tour })}>
+                                                                <Eye className="w-4 h-4" />
+                                                            </Button>
+                                                            <Button variant="destructive" size="icon" className="w-10 h-10 rounded-full opacity-0 group-hover:opacity-100 transition-opacity translate-y-4 group-hover:translate-y-0" onClick={() => handleDelete('tour', tour.id)}>
+                                                                <Trash2 className="w-4 h-4" />
+                                                            </Button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="p-6 space-y-4 flex-1 flex flex-col justify-between">
+                                                    <div className="space-y-2">
+                                                        <div className="flex items-center justify-between text-sm font-bold text-muted-foreground uppercase tracking-widest">
+                                                            <div className="flex items-center gap-2"><Compass className="w-4 h-4 text-nature" /> {tour.category}</div>
+                                                            <div className="text-nature">{tour.duration}</div>
+                                                        </div>
+                                                        <p className="text-sm text-foreground/80 font-medium italic line-clamp-2">"{tour.description}"</p>
+                                                    </div>
+                                                    <div className="flex items-center justify-between pt-4 border-t border-border/50">
+                                                        <span className="font-black text-primary">₹{tour.price}</span>
+                                                        <div className="flex items-center gap-1 text-sm font-bold bg-muted/50 px-2 py-1 rounded-lg">
+                                                            <MapPin className="w-4 h-4" /> {tour.location}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                                 {activeView === 'support' && supportFeed.length === 0 && (
                                     <div className="p-20 text-center bg-muted/5">
                                         <p className="font-black text-muted-foreground uppercase tracking-widest text-[10px] italic">No support inquiries found.</p>
@@ -681,7 +709,7 @@ const AdminDashboard = () => {
                                         <TrendingUp className="w-4 h-4" /> {t('comprehensiveInsight')}
                                     </div>
                                     <h3 className="text-5xl font-display font-black tracking-tight leading-tight">
-                                        {detailedItem.type === 'user_bookings' ? `${detailedItem.data.user}'s ${t('timeline')}` : `Reviews for ${detailedItem.data.name}`}
+                                        {detailedItem.type === 'user_activity' ? `${detailedItem.data.user}'s ${t('timeline')}` : `Reviews for ${detailedItem.data.name}`}
                                     </h3>
                                 </div>
                                 <button onClick={() => setDetailedItem(null)} className="p-4 bg-muted/50 rounded-3xl hover:bg-muted transition-all">
@@ -690,24 +718,58 @@ const AdminDashboard = () => {
                             </div>
 
                             <div className="max-h-[50vh] overflow-y-auto pr-6 space-y-6">
-                                {detailedItem.type === 'user_bookings' ? (
-                                    bookings.filter(b => b.userEmail === detailedItem.data.email).map(b => (
-                                        <div key={b.id} className="p-8 bg-muted/20 rounded-[2.5rem] border border-border/50 flex items-center justify-between">
-                                            <div className="flex items-center gap-6">
-                                                <div className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center shadow-soft">
-                                                    <Ticket className="w-6 h-6 text-primary" />
+                                {detailedItem.type === 'user_activity' ? (
+                                    <>
+                                        {bookings.filter(b => b.userEmail === detailedItem.data.email).map(b => (
+                                            <div key={b.id} className="p-8 bg-muted/20 rounded-[2.5rem] border border-border/50 flex items-center justify-between">
+                                                <div className="flex items-center gap-6">
+                                                    <div className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center shadow-soft">
+                                                        <Ticket className="w-6 h-6 text-primary" />
+                                                    </div>
+                                                    <div>
+                                                        <h4 className="font-black text-xl">{b.entity} (Booking)</h4>
+                                                        <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest font-sans">{b.date}</p>
+                                                    </div>
                                                 </div>
-                                                <div>
-                                                    <h4 className="font-black text-xl">{b.entity}</h4>
-                                                    <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest font-sans">{b.date}</p>
+                                                <div className="text-right">
+                                                    <p className="font-black text-2xl text-nature">{b.amount}</p>
+                                                    <p className="text-[10px] font-black uppercase text-gold">{b.status}</p>
                                                 </div>
                                             </div>
-                                            <div className="text-right">
-                                                <p className="font-black text-2xl text-nature">{b.amount}</p>
-                                                <p className="text-[10px] font-black uppercase text-gold">{b.status}</p>
+                                        ))}
+                                        {tours.filter(t => t.guideEmail === detailedItem.data.email).map(t => (
+                                            <div key={`tour_${t.id}`} className="p-8 bg-nature/5 rounded-[2.5rem] border border-nature/20 flex items-center justify-between">
+                                                <div className="flex items-center gap-6">
+                                                    <div className="w-14 h-14 rounded-2xl bg-nature/20 flex items-center justify-center shadow-soft text-nature">
+                                                        <Compass className="w-6 h-6" />
+                                                    </div>
+                                                    <div>
+                                                        <h4 className="font-black text-xl">{t.title} (Tour Host)</h4>
+                                                        <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest font-sans">{t.location} - {t.category}</p>
+                                                    </div>
+                                                </div>
+                                                <div className="text-right">
+                                                    <p className="font-black text-2xl text-nature">Live</p>
+                                                </div>
                                             </div>
-                                        </div>
-                                    ))
+                                        ))}
+                                        {stays.filter(s => s.host === detailedItem.data.email).map(s => (
+                                            <div key={`stay_${s.id}`} className="p-8 bg-secondary/5 rounded-[2.5rem] border border-secondary/20 flex items-center justify-between">
+                                                <div className="flex items-center gap-6">
+                                                    <div className="w-14 h-14 rounded-2xl bg-secondary/20 flex items-center justify-center shadow-soft text-secondary">
+                                                        <Home className="w-6 h-6" />
+                                                    </div>
+                                                    <div>
+                                                        <h4 className="font-black text-xl">{s.title} (Property Host)</h4>
+                                                        <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest font-sans">{s.location} - {s.category}</p>
+                                                    </div>
+                                                </div>
+                                                <div className="text-right">
+                                                    <p className="font-black text-2xl text-secondary">Live</p>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </>
                                 ) : (
                                     reviews.filter(r => r.target === detailedItem.data.name).map(r => (
                                         <div key={r.id} className="p-8 bg-muted/20 rounded-[2.5rem] border border-border/50 space-y-4">
@@ -727,8 +789,8 @@ const AdminDashboard = () => {
                                         </div>
                                     ))
                                 )}
-                                {(detailedItem.type === 'user_bookings' && bookings.filter(b => b.userEmail === detailedItem.data.email).length === 0) && (
-                                    <p className="text-center py-10 font-black text-muted-foreground uppercase tracking-widest text-xs">{t("noBookingsFound")}</p>
+                                {(detailedItem.type === 'user_activity' && bookings.filter(b => b.userEmail === detailedItem.data.email).length === 0 && tours.filter(t => t.guideEmail === detailedItem.data.email).length === 0 && stays.filter(s => s.host === detailedItem.data.email).length === 0) && (
+                                    <p className="text-center py-10 font-black text-muted-foreground uppercase tracking-widest text-xs">No activity found for this user.</p>
                                 )}
                             </div>
 

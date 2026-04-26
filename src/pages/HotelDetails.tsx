@@ -14,6 +14,7 @@ import { cn } from '@/lib/utils';
 import { resolveImage } from '@/lib/image-mapper';
 import apiClient from '@/config/axios';
 import { toast } from 'sonner';
+import Footer from '@/components/Footer';
 import Loader3D from '@/components/Loader3D';
 
 const HotelDetails = () => {
@@ -141,6 +142,7 @@ const HotelDetails = () => {
                   <MapPin className="w-4 h-4" />
                   {hotel.location}
                 </div>
+
                 <h1 className="text-4xl md:text-7xl font-display font-black tracking-tighter leading-none">{hotel.name}</h1>
                 <div className="flex items-center gap-6 pt-4">
                   <div className="flex items-center gap-1.5 bg-secondary/5 px-4 py-2 rounded-2xl font-black text-xl">
@@ -177,8 +179,8 @@ const HotelDetails = () => {
                   </div>
                   
                   <div className="relative overflow-hidden group py-4 -mx-4 px-4 md:-mx-8 md:px-8">
-                    <div className="flex gap-8 min-w-full w-max animate-auto-scroll-x">
-                      {hotel.nearbyAttractions && [...hotel.nearbyAttractions, ...hotel.nearbyAttractions].map((attr: any, index) => (
+                    <div className={`flex gap-8 w-max ${hotel.nearbyAttractions && hotel.nearbyAttractions.length <= 4 ? 'justify-start' : 'min-w-full animate-auto-scroll-x hover:[animation-play-state:paused]'}`}>
+                      {hotel.nearbyAttractions && (hotel.nearbyAttractions.length <= 4 ? hotel.nearbyAttractions : Array(10).fill(hotel.nearbyAttractions).flat()).map((attr: any, index: number) => (
                         <div key={`${attr.id}-${index}`} onClick={() => navigate(`/attraction/${attr.id}`)} className="w-[300px] shrink-0 group cursor-pointer bg-white dark:bg-card rounded-[2.5rem] overflow-hidden shadow-soft hover:shadow-premium transition-all border border-border/30">
                           <div className="h-48 overflow-hidden relative">
                             <img src={resolveImage(attr.image)} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={attr.title} />
@@ -205,20 +207,25 @@ const HotelDetails = () => {
                        </div>
                        <h3 className="text-3xl font-display font-black">{t("culinaryExperiences")}</h3>
                     </div>
-                    <div className="relative overflow-hidden group py-4 -mx-4 px-4 md:-mx-8 md:px-8">
-                      <div className="flex gap-6 min-w-full w-max animate-auto-scroll-x">
-                        {[...hotel.nearbyFoods, ...hotel.nearbyFoods].map((food: any, index) => (
-                          <div key={`${food.id}-${index}`} className="w-[300px] shrink-0 flex items-center gap-6 p-6 bg-muted/20 rounded-[2.5rem] border border-border/30 hover:bg-white hover:shadow-premium transition-all cursor-default">
-                            <div className="w-24 h-24 rounded-2xl overflow-hidden shrink-0 shadow-lg">
-                              <img src={resolveImage(food.image)} className="w-full h-full object-cover" alt={food.title} />
+                    <div className="relative overflow-hidden w-full max-w-[2000px] mx-auto py-4">
+                      <div className="overflow-hidden w-full relative -mx-4 px-4 md:-mx-8 md:px-8">
+                        <div 
+                          className={`flex gap-6 w-max ${hotel.nearbyFoods && hotel.nearbyFoods.length <= 4 ? 'justify-start' : 'min-w-full animate-auto-scroll-x hover:[animation-play-state:paused]'}`}
+                          style={{ animationDuration: hotel.nearbyFoods && hotel.nearbyFoods.length <= 4 ? 'unset' : `${hotel.nearbyFoods ? Array(10).fill(hotel.nearbyFoods).flat().length * 3 : 20}s` }}
+                        >
+                          {hotel.nearbyFoods && (hotel.nearbyFoods.length <= 4 ? hotel.nearbyFoods : Array(10).fill(hotel.nearbyFoods).flat()).map((food: any, index: number) => (
+                            <div key={`${food.id}-${index}`} className="w-[300px] shrink-0 flex items-center gap-6 p-6 bg-muted/20 rounded-[2.5rem] border border-border/30 hover:bg-white hover:shadow-premium transition-all cursor-default">
+                              <div className="w-24 h-24 rounded-2xl overflow-hidden shrink-0 shadow-lg">
+                                <img src={resolveImage(food.image)} className="w-full h-full object-cover" alt={food.title} />
+                              </div>
+                              <div className="space-y-1">
+                                <h4 className="text-xl font-display font-black line-clamp-1">{food.title}</h4>
+                                <p className="text-xs text-muted-foreground italic line-clamp-1">"{food.description}"</p>
+                                <p className="text-sm font-black text-secondary pt-2">₹{food.price}</p>
+                              </div>
                             </div>
-                            <div className="space-y-1">
-                              <h4 className="text-xl font-display font-black line-clamp-1">{food.title}</h4>
-                              <p className="text-xs text-muted-foreground italic line-clamp-1">"{food.description}"</p>
-                              <p className="text-sm font-black text-secondary pt-2">₹{food.price}</p>
-                            </div>
-                          </div>
-                        ))}
+                          ))}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -270,6 +277,7 @@ const HotelDetails = () => {
           </div>
         </div>
       </main>
+      <Footer />
     </div>
   );
 };

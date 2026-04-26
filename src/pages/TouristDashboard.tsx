@@ -134,10 +134,9 @@ const TouristDashboard = () => {
                     </div>
 
                     {activeTab === "bookings" ? (
-                        <div className="relative overflow-hidden group py-4 -mx-4 px-4 md:-mx-12 md:px-12">
-                            <div className="flex gap-8 min-w-full w-max animate-auto-scroll-x">
-                                {[...bookings, ...bookings].map((booking, index) => (
-                                    <div key={`${booking.id}-${index}`} className="w-[350px] lg:w-[600px] shrink-0">
+                        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 py-4">
+                                {bookings.map((booking, index) => (
+                                    <div key={`${booking.id}-${index}`} className="w-full">
                                         <Card className="group overflow-hidden rounded-[3rem] border-border/50 shadow-soft hover:shadow-premium transition-all duration-500 h-full">
                                             <CardContent className="p-0 flex flex-col sm:flex-row h-full">
                                                 <div className="w-full sm:w-1/2 h-64 sm:h-auto overflow-hidden relative">
@@ -208,13 +207,11 @@ const TouristDashboard = () => {
                                         </Card>
                                     </div>
                                 ))}
-                            </div>
                         </div>
                     ) : (
-                        <div className="relative overflow-hidden group py-4 -mx-4 px-4 md:-mx-12 md:px-12">
-                            <div className="flex gap-8 min-w-full w-max animate-auto-scroll-x">
-                                {[...favorites, ...favorites].map((fav, index) => (
-                                    <div key={`${fav.id}-${index}`} className="w-[300px] md:w-[400px] shrink-0">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 py-4">
+                                {favorites.map((fav, index) => (
+                                    <div key={`${fav.id}-${index}`} className="w-full">
                                         <Card className="group overflow-hidden rounded-[3rem] border-border/50 shadow-soft hover:shadow-premium transition-all h-full">
                                             <CardContent className="p-0">
                                                 <div className="h-64 overflow-hidden relative">
@@ -245,7 +242,6 @@ const TouristDashboard = () => {
                                         </Card>
                                     </div>
                                 ))}
-                            </div>
                         </div>
                     )}
 

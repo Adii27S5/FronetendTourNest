@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import NavigationHeader from "@/components/NavigationHeader";
+import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -213,32 +214,37 @@ const AttractionDetails = () => {
                                     <h2 className="text-4xl md:text-5xl font-display font-black tracking-tight">{t("culinaryExperiences")}</h2>
                                 </div>
 
-                                <div className="relative overflow-hidden group py-4 -mx-4 px-4 md:-mx-8 md:px-8">
-                                    <div className="flex gap-6 min-w-full w-max animate-auto-scroll-x">
-                                        {[...foods, ...foods].map((food, index) => (
-                                            <div key={`${food.id}-${index}`} className="w-[300px] md:w-[400px] shrink-0 group relative flex items-center gap-6 p-6 bg-white dark:bg-card rounded-[2.5rem] shadow-soft hover:shadow-premium transition-all h-full">
-                                                <div className="w-32 h-32 rounded-3xl overflow-hidden shrink-0 shadow-lg group-hover:scale-105 transition-transform">
-                                                    <img 
-                                                        src={resolveImage(food.image)} 
-                                                        className="w-full h-full object-cover"
-                                                        alt={food.title}
-                                                    />
-                                                </div>
-                                                <div className="space-y-1">
-                                                    <Badge variant="outline" className="text-[8px] font-black uppercase tracking-tighter mb-1 border-secondary/20 text-secondary">
-                                                        {food.category}
-                                                    </Badge>
-                                                    <h3 className="text-xl font-display font-black leading-tight line-clamp-1">{food.title}</h3>
-                                                    <p className="text-xs text-muted-foreground line-clamp-2 italic font-medium">"{food.description}"</p>
-                                                    <div className="flex items-center gap-3 pt-2">
-                                                         <span className="text-sm font-black text-secondary">₹{food.price}</span>
-                                                         <span className="text-[10px] font-bold text-gold flex items-center gap-1">
-                                                              <StarIcon className="w-3 h-3 fill-gold" /> {food.rating}
-                                                         </span>
+                                <div className="relative overflow-hidden w-full max-w-[2000px] mx-auto py-4">
+                                    <div className="overflow-hidden w-full relative -mx-4 px-4 md:-mx-8 md:px-8">
+                                        <div 
+                                            className={`flex gap-6 w-max ${foods.length <= 4 ? 'justify-start' : 'min-w-full animate-auto-scroll-x hover:[animation-play-state:paused]'}`}
+                                            style={{ animationDuration: foods.length <= 4 ? 'unset' : `${Array(10).fill(foods).flat().length * 3}s` }}
+                                        >
+                                            {(foods.length <= 4 ? foods : Array(10).fill(foods).flat()).map((food: any, index: number) => (
+                                                <div key={`${food.id}-${index}`} className="w-[300px] md:w-[400px] shrink-0 group relative flex items-center gap-6 p-6 bg-white dark:bg-card rounded-[2.5rem] shadow-soft hover:shadow-premium transition-all h-full">
+                                                    <div className="w-32 h-32 rounded-3xl overflow-hidden shrink-0 shadow-lg group-hover:scale-105 transition-transform">
+                                                        <img 
+                                                            src={resolveImage(food.image)} 
+                                                            className="w-full h-full object-cover"
+                                                            alt={food.title}
+                                                        />
+                                                    </div>
+                                                    <div className="space-y-1">
+                                                        <Badge variant="outline" className="text-[8px] font-black uppercase tracking-tighter mb-1 border-secondary/20 text-secondary">
+                                                            {food.category}
+                                                        </Badge>
+                                                        <h3 className="text-xl font-display font-black leading-tight line-clamp-1">{food.title}</h3>
+                                                        <p className="text-xs text-muted-foreground line-clamp-2 italic font-medium">"{food.description}"</p>
+                                                        <div className="flex items-center gap-3 pt-2">
+                                                            <span className="text-sm font-black text-secondary">₹{food.price}</span>
+                                                            <span className="text-[10px] font-bold text-gold flex items-center gap-1">
+                                                                <StarIcon className="w-3 h-3 fill-gold" /> {food.rating}
+                                                            </span>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        ))}
+                                            ))}
+                                        </div>
                                     </div>
                                 </div>
                             </div>

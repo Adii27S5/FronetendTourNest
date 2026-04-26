@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { motion } from "framer-motion";
-import { MapPin, Sparkles, IndianRupee, ChevronLeft, ChevronRight } from "lucide-react";
+import { MapPin, Sparkles, IndianRupee } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useAppContext } from "@/contexts/AppContext";
@@ -106,17 +106,10 @@ const DestinationsSection = () => {
   const navigate = useNavigate();
   const { t } = useAppContext();
   
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  const handleManualSlide = (direction: 'left' | 'right') => {
-    if (containerRef.current) {
-      const scrollAmount = window.innerWidth * 0.8;
-      containerRef.current.scrollBy({
-        left: direction === 'left' ? -scrollAmount : scrollAmount,
-        behavior: 'smooth'
-      });
-    }
-  };
+  const repeatedDestinations = destinations.length <= 4 ? destinations : [
+    ...destinations, ...destinations, ...destinations, ...destinations, ...destinations,
+    ...destinations, ...destinations, ...destinations, ...destinations, ...destinations
+  ];
 
   return (
     <section className="relative bg-muted/20 py-24 overflow-hidden">
@@ -139,80 +132,64 @@ const DestinationsSection = () => {
           </div>
         </div>
 
-      {/* Native Lag-Free Horizontal Scroll Container */}
-      <div className="relative group/slider">
-        <div 
-          ref={containerRef}
-          className="flex gap-10 overflow-x-auto snap-x snap-mandatory px-4 md:px-20 pb-20 pt-10 scroll-smooth no-scrollbar"
-        >
-          {destinations.map((dest) => (
-            <motion.div
-              key={dest.id}
-              onClick={() => navigate(`/hotels?location=${dest.searchLocation || dest.name}`)}
-              className="relative group rounded-[3rem] overflow-hidden shadow-premium h-[450px] md:h-[550px] w-[350px] md:w-[500px] cursor-pointer flex-shrink-0 snap-center effect-3d"
-            >
-              <img 
-                src={dest.image} 
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" 
-                alt={dest.name} 
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
-              <div className="absolute top-8 left-8 flex gap-2">
-                {dest.tags.map(tag => (
-                  <span 
-                    key={tag}
-                    className="bg-white/20 backdrop-blur-md px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest text-white"
-                  >
-                    {t(tag)}
-                  </span>
-                ))}
-              </div>
-              <div className="absolute bottom-10 left-10 right-10 p-2 text-white pointer-events-none">
-                <div className="flex items-center gap-2 opacity-70 mb-2 font-bold uppercase text-xs tracking-widest">
-                  <MapPin className="w-4 h-4" />
-                  {dest.state}
-                </div>
-                <h3 className="text-3xl md:text-5xl font-display font-black mb-4">{dest.name}</h3>
-                <p className="text-white/80 text-sm md:text-base font-medium leading-relaxed mb-6 line-clamp-2">
-                  {dest.description}
-                </p>
-                <div className="flex items-center justify-between pointer-events-auto">
-                  <div className="flex flex-col">
-                    <span className="text-[10px] uppercase tracking-widest opacity-60 font-black">{t("startingFrom")}</span>
-                    <span className="text-2xl md:text-3xl font-display font-black text-secondary flex items-center">
-                      <IndianRupee className="w-5 h-5 md:w-6 md:h-6 mr-1" />{dest.startingPrice}
+      <div className="relative w-full max-w-[2000px] mx-auto mt-16 md:mt-24">
+        <div className="overflow-hidden w-full relative pb-20 pt-10">
+          <div 
+            className={`flex gap-10 w-max ${destinations.length <= 4 ? 'justify-start' : 'animate-auto-scroll-x hover:[animation-play-state:paused]'} px-4 md:px-20`}
+            style={{ animationDuration: destinations.length <= 4 ? 'unset' : `${repeatedDestinations.length * 3}s` }}
+          >
+            {repeatedDestinations.map((dest, index) => (
+              <motion.div
+                key={`${dest.id}-${index}`}
+                onClick={() => navigate(`/homestays?location=${dest.searchLocation || dest.name}`)}
+                className="relative group rounded-[3rem] overflow-hidden shadow-premium h-[450px] md:h-[550px] w-[350px] md:w-[500px] cursor-pointer flex-shrink-0 snap-center effect-3d"
+              >
+                <img 
+                  src={dest.image} 
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" 
+                  alt={dest.name} 
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
+                <div className="absolute top-8 left-8 flex gap-2">
+                  {dest.tags.map(tag => (
+                    <span 
+                      key={tag}
+                      className="bg-white/20 backdrop-blur-md px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest text-white"
+                    >
+                      {t(tag)}
                     </span>
-                  </div>
-                  <Button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      navigate(`/hotels?location=${dest.searchLocation || dest.name}`);
-                    }}
-                    size="default" className="h-12 px-6 rounded-xl bg-white text-black font-black hover:bg-secondary hover:text-white transition-all shadow-xl"
-                  >
-                    Explore
-                  </Button>
+                  ))}
                 </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Manual Slider Controls (Repositioned to Sides) */}
-        <div className="absolute top-1/2 -translate-y-1/2 left-0 right-0 px-2 md:px-8 flex items-center justify-between z-20 pointer-events-none opacity-0 group-hover/slider:opacity-100 transition-opacity duration-300">
-          <button 
-            onClick={() => handleManualSlide('left')}
-            className="pointer-events-auto w-14 h-14 rounded-full bg-white/80 backdrop-blur-md border border-border flex items-center justify-center text-foreground hover:bg-secondary hover:text-white transition-all shadow-premium"
-          >
-            <ChevronLeft className="w-6 h-6" />
-          </button>
-
-          <button 
-            onClick={() => handleManualSlide('right')}
-            className="pointer-events-auto w-14 h-14 rounded-full bg-white/80 backdrop-blur-md border border-border flex items-center justify-center text-foreground hover:bg-secondary hover:text-white transition-all shadow-premium"
-          >
-            <ChevronRight className="w-6 h-6" />
-          </button>
+                <div className="absolute bottom-10 left-10 right-10 p-2 text-white pointer-events-none">
+                  <div className="flex items-center gap-2 opacity-70 mb-2 font-bold uppercase text-xs tracking-widest">
+                    <MapPin className="w-4 h-4" />
+                    {dest.state}
+                  </div>
+                  <h3 className="text-3xl md:text-5xl font-display font-black mb-4">{dest.name}</h3>
+                  <p className="text-white/80 text-sm md:text-base font-medium leading-relaxed mb-6 line-clamp-2">
+                    {dest.description}
+                  </p>
+                  <div className="flex items-center justify-between pointer-events-auto">
+                    <div className="flex flex-col">
+                      <span className="text-[10px] uppercase tracking-widest opacity-60 font-black">{t("startingFrom")}</span>
+                      <span className="text-2xl md:text-3xl font-display font-black text-secondary flex items-center">
+                        <IndianRupee className="w-5 h-5 md:w-6 md:h-6 mr-1" />{dest.startingPrice}
+                      </span>
+                    </div>
+                    <Button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/homestays?location=${dest.searchLocation || dest.name}`);
+                      }}
+                      size="default" className="h-12 px-6 rounded-xl bg-white text-black font-black hover:bg-secondary hover:text-white transition-all shadow-xl"
+                    >
+                      Explore
+                    </Button>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </div>
     </section>
